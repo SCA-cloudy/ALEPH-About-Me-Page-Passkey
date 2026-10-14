@@ -145,31 +145,31 @@
     footer strong{font-size:1.2rem;letter-spacing:-.08em}footer strong span{color:#d29a77}footer p{margin:5px 0 0;color:#929a92;font-size:.68rem}footer a{text-decoration:none;color:#d9aa8e;font-size:.62rem;font-weight:950;letter-spacing:.13em}
 
     /* Public / Private boundary (assignment 8) */
-    .boundary{display:flex;align-items:center;gap:18px;padding:18px max(24px,calc((100% - var(--max))/2));
-      background:var(--paper);border-block:2px solid var(--charcoal);font-size:.62rem;font-weight:950;letter-spacing:.14em}
+    .hero-meta a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor;transition:color .2s ease}
+    .hero-meta a:hover{color:var(--brown)}
+    .boundary{display:flex;align-items:center;gap:14px;padding:10px max(24px,calc((100% - var(--max))/2));
+      background:var(--paper);border-block:2px solid var(--charcoal);font-size:.58rem;font-weight:950;letter-spacing:.14em}
     .boundary i{flex:1;border-top:2px dashed var(--brown)}
     .boundary .b-pub{color:var(--charcoal)}.boundary .b-priv{color:var(--brown)}
-    .private{background:repeating-linear-gradient(135deg,#20231f 0 14px,#262a25 14px 15px);color:var(--white)}
-    .private .index span{color:#aeb4ad}.private h2 em{color:#d29a77}
-    .private .eyebrow{color:#d29a77}
-    .private-lead{margin:22px 0 0;max-width:600px;color:#c4cbc4;font-size:.95rem}
-    .vault{margin-top:52px;border:1px solid #565e58;border-radius:3px;background:rgba(32,35,31,.88);min-height:210px;padding:34px}
-    .vault-locked{display:grid;grid-template-columns:72px 1fr;gap:26px;align-items:center}
-    .vault-lock{width:72px;height:72px;border:1px solid #d29a77;border-radius:50%;display:grid;place-items:center}
-    .vault-lock svg{width:34px;height:34px}
-    .vault-locked h3{margin:0 0 8px;font-size:1.7rem}
-    .vault-locked p{margin:0;color:#c4cbc4;font-size:.9rem;max-width:560px}
-    .vault-status{margin-top:14px!important;font-size:.66rem!important;font-weight:900;letter-spacing:.12em;color:#d29a77!important}
-    .vault-items{list-style:none;margin:0;padding:0;display:grid;gap:14px}
-    .vault-items li{border:1px solid #3a413b;border-radius:3px;padding:18px 20px;background:rgba(255,250,242,.04)}
-    .vault-items small{display:block;color:#d29a77;font-size:.62rem;font-weight:900;letter-spacing:.13em;margin-bottom:6px}
-    .vault-items b{display:block;font-size:1.05rem;margin-bottom:4px}
-    .vault-items p{margin:0;color:#c4cbc4;font-size:.86rem}
+    .private{padding-block:16px;scroll-margin-top:112px;background:repeating-linear-gradient(135deg,#e8dfd1 0 12px,#e0d5c3 12px 13px)}
+    .vault{margin:0;min-height:0;padding:0}
+    .vault-locked{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .vault-lock{width:36px;height:36px;border:1px solid var(--brown);border-radius:50%;display:grid;place-items:center;flex:none}
+    .vault-lock svg{width:18px;height:18px}
+    .vault-text{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+    .vault-text b{font-size:.82rem;letter-spacing:.02em;color:var(--charcoal)}
+    .vault-text span{font-size:.72rem;color:var(--muted)}
+    .vault-status{margin:0 0 0 auto!important;font-size:.58rem!important;font-weight:900;letter-spacing:.12em;color:var(--brown)!important}
+    .vault-items{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+    .vault-items li{border:1px solid var(--line);border-radius:3px;padding:10px 14px;background:var(--paper)}
+    .vault-items small{display:block;color:var(--brown);font-size:.55rem;font-weight:900;letter-spacing:.13em;margin-bottom:2px}
+    .vault-items b{display:block;font-size:.85rem;margin-bottom:1px}
+    .vault-items p{margin:0;color:var(--muted);font-size:.74rem}
     .vault [hidden]{display:none!important}
-    .vault-note{margin:16px 0 0;color:#929a92;font-size:.7rem}
+    .vault-note{margin:8px 0 0;color:var(--muted);font-size:.58rem}
     @media(max-width:600px){
-      .boundary{flex-direction:column;align-items:flex-start;gap:10px;padding:16px 14px}.boundary i{width:100%;flex:none}
-      .vault{padding:22px 18px}.vault-locked{grid-template-columns:1fr;gap:16px}
+      .boundary{flex-direction:column;align-items:flex-start;gap:6px;padding:12px 14px}.boundary i{width:100%;flex:none}
+      .private{padding-block:14px;scroll-margin-top:150px}.vault-status{margin-left:0!important;width:100%}
     }
 
     /* Reveal */
@@ -230,7 +230,7 @@
           <span class="float f3">COFFEE · 03</span><span class="float f4">NETWORK + AI · NOW</span>
         </div>
       </div>
-      <div class="hero-meta"><span>BIOMEDICAL ENGINEERING</span><span>PERSONAL ONE PAGE</span><span>PUBLIC / PRIVATE</span></div>
+      <div class="hero-meta"><span>BIOMEDICAL ENGINEERING</span><span>PERSONAL ONE PAGE</span><a href="#private">PUBLIC / PRIVATE</a></div>
     </section>
 
     <section id="about" aria-labelledby="about-title">
@@ -366,25 +366,14 @@
       <span class="b-pub">▲ PUBLIC · 누구나 볼 수 있습니다</span><i aria-hidden="true"></i><span class="b-priv">PRIVATE · 패스키로만 열립니다 ▼</span>
     </div>
 
-    <section class="private" id="private" aria-labelledby="private-title">
-      <div class="section-head reveal">
-        <div class="index">06<span>PRIVATE</span></div>
-        <div>
-          <p class="eyebrow">ONLY FOR ME</p>
-          <h2 id="private-title">MY OWN PLACE,<br><em>LOCKED BY PASSKEY.</em></h2>
-          <p class="private-lead">위의 소개는 누구나 볼 수 있습니다. 이 아래의 메모·목록·회고는 패스키로 들어온 사람에게만 서버가 내려 줍니다.</p>
-        </div>
-      </div>
-      <div class="vault reveal" id="vault" aria-live="polite">
+    <section class="private" id="private" aria-label="나만의 자리 (비공개)">
+      <div class="vault" id="vault" aria-live="polite">
         <div class="vault-locked" id="vault-locked">
           <div class="vault-lock" aria-hidden="true">
-            <svg viewBox="0 0 34 34" fill="none" stroke="#d29a77" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="15" width="22" height="15" rx="2"/><path d="M11 15v-4a6 6 0 0 1 12 0v4"/></svg>
+            <svg viewBox="0 0 34 34" fill="none" stroke="#8b4f2f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="15" width="22" height="15" rx="2"/><path d="M11 15v-4a6 6 0 0 1 12 0v4"/></svg>
           </div>
-          <div>
-            <h3>잠겨 있습니다</h3>
-            <p>패스키로 들어가지 않은 상태입니다. 서버가 이 자리의 내용을 보내지 않았기 때문에, 이 페이지의 소스에도 내용이 들어 있지 않습니다.</p>
-            <p class="vault-status" id="vault-status">서버에 확인하는 중…</p>
-          </div>
+          <div class="vault-text"><b>나만의 자리</b><span>패스키로만 열립니다</span></div>
+          <p class="vault-status" id="vault-status">서버에 확인하는 중…</p>
         </div>
         <ul class="vault-items" id="vault-items" hidden></ul>
         <p class="vault-note">※ 이 자리에 들어가는 내용은 모두 만들어 넣은 것이며, 실제 개인정보는 없습니다.</p>

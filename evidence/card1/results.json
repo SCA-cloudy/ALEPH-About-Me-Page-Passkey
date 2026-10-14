@@ -1,5 +1,5 @@
 {
-  "collected_at_kst": "2026-10-15T01:54:26+09:00",
+  "collected_at_kst": "2026-10-15T02:21:37+09:00",
   "base_url": "http://localhost:3000",
   "environment": "local-dev-server",
   "api_request": "GET http://localhost:3000/api/private/items (쿠키 없음)",
@@ -8,7 +8,7 @@
   "api_cache_control": "no-store",
   "api_body": "{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}",
   "page_status": 200,
-  "page_bytes": 35224,
+  "page_bytes": 34644,
   "scanned_strings": 12,
   "page_source_matches": 0,
   "rendered_dom_matches": 0,

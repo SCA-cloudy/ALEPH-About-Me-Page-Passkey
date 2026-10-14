@@ -72,7 +72,7 @@ def main():
     # ③ 브라우저로 열어 본 화면
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        ctx = browser.new_context(viewport={"width": 1366, "height": 768}, reduced_motion="reduce", locale="ko-KR")
+        ctx = browser.new_context(viewport={"width": 1366, "height": 768}, reduced_motion="reduce", locale="ko-KR", device_scale_factor=2)
         page = ctx.new_page()
         seen = []
         page.on("response", lambda r: seen.append(r.status) if "/api/private/items" in r.url else None)
@@ -94,7 +94,7 @@ def main():
         )
         boundary_visible = page.is_visible(".boundary")
         y0 = max(0, int(geo["boundaryTop"] - 260))
-        y1 = int(geo["vaultBottom"] + 70)
+        y1 = int(geo["vaultBottom"] + 16)  # 잠긴 자리 바로 아래까지만
         shot = OUT / "boundary.png"
         page.screenshot(path=str(shot), full_page=True, clip={"x": 0, "y": y0, "width": 1366, "height": y1 - y0})
         browser.close()
@@ -172,7 +172,7 @@ def main():
 
     <section><h2>1. 공개 영역과 비공개 영역을 가른 화면 (C13, C15)</h2>
     <img src="data:image/png;base64,{b64(shot)}" alt="공개/비공개 경계 화면">
-    <p class="cap">위쪽 갈색 구역은 공개 소개(NOW)의 끝, 가운데 띠가 경계, 아래 어두운 구역이 패스키로 잠긴 비공개 자리입니다. 로그인하지 않아 잠금 상태이며 항목 내용은 보이지 않습니다. 화면 아래쪽 표시: “{e(status_text)}”.</p></section>
+    <p class="cap">위쪽 갈색 구역은 공개 소개(NOW)의 끝, 가운데 흰 띠가 경계, 아래 베이지 사선 구역이 패스키로 잠긴 비공개 자리(그 아래는 푸터)입니다. 로그인하지 않아 잠금 상태이며 항목 내용은 보이지 않습니다. 화면 아래쪽 표시: “{e(status_text)}”.</p></section>
 
     <section><h2>2. 로그인 없이 받은 응답 본문 (C16, C17)</h2>
     <table><tr><th style="width:22%">요청</th><td>GET {e(BASE)}/api/private/items<br>(쿠키·인증 정보 없이 보낸 순수한 요청)</td></tr>

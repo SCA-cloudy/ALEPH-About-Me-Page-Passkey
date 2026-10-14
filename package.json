@@ -1,0 +1,10 @@
+{
+  "name": "aleph-about-me-page-passkey",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ALEPH 과제 8 — 1번 소개 페이지에 패스키로 잠그는 나만의 자리 붙이기",
+  "scripts": {
+    "dev": "node dev-server.mjs"
+  }
+}

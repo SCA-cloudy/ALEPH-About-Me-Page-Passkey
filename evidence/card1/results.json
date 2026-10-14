@@ -1,0 +1,31 @@
+{
+  "collected_at_kst": "2026-10-15T01:54:26+09:00",
+  "base_url": "http://localhost:3000",
+  "environment": "local-dev-server",
+  "api_request": "GET http://localhost:3000/api/private/items (쿠키 없음)",
+  "api_status": 401,
+  "api_content_type": "application/json; charset=utf-8",
+  "api_cache_control": "no-store",
+  "api_body": "{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}",
+  "page_status": 200,
+  "page_bytes": 35224,
+  "scanned_strings": 12,
+  "page_source_matches": 0,
+  "rendered_dom_matches": 0,
+  "page_fetch_statuses_seen_by_browser": [
+    401
+  ],
+  "screen_status_text": "서버 응답 401 Unauthorized",
+  "server_item_counts_per_account": {
+    "account-a": 3,
+    "account-b": 3
+  },
+  "criteria": {
+    "C13": "통과",
+    "C14": "부분 확인",
+    "C15": "통과",
+    "C16": "통과",
+    "C17": "통과",
+    "C18": "통과"
+  }
+}

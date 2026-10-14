@@ -144,6 +144,34 @@
     footer{background:#1a1d1a;color:#dce0da;padding:32px max(24px,calc((100% - var(--max))/2));display:flex;justify-content:space-between;gap:20px;align-items:center}
     footer strong{font-size:1.2rem;letter-spacing:-.08em}footer strong span{color:#d29a77}footer p{margin:5px 0 0;color:#929a92;font-size:.68rem}footer a{text-decoration:none;color:#d9aa8e;font-size:.62rem;font-weight:950;letter-spacing:.13em}
 
+    /* Public / Private boundary (assignment 8) */
+    .boundary{display:flex;align-items:center;gap:18px;padding:18px max(24px,calc((100% - var(--max))/2));
+      background:var(--paper);border-block:2px solid var(--charcoal);font-size:.62rem;font-weight:950;letter-spacing:.14em}
+    .boundary i{flex:1;border-top:2px dashed var(--brown)}
+    .boundary .b-pub{color:var(--charcoal)}.boundary .b-priv{color:var(--brown)}
+    .private{background:repeating-linear-gradient(135deg,#20231f 0 14px,#262a25 14px 15px);color:var(--white)}
+    .private .index span{color:#aeb4ad}.private h2 em{color:#d29a77}
+    .private .eyebrow{color:#d29a77}
+    .private-lead{margin:22px 0 0;max-width:600px;color:#c4cbc4;font-size:.95rem}
+    .vault{margin-top:52px;border:1px solid #565e58;border-radius:3px;background:rgba(32,35,31,.88);min-height:210px;padding:34px}
+    .vault-locked{display:grid;grid-template-columns:72px 1fr;gap:26px;align-items:center}
+    .vault-lock{width:72px;height:72px;border:1px solid #d29a77;border-radius:50%;display:grid;place-items:center}
+    .vault-lock svg{width:34px;height:34px}
+    .vault-locked h3{margin:0 0 8px;font-size:1.7rem}
+    .vault-locked p{margin:0;color:#c4cbc4;font-size:.9rem;max-width:560px}
+    .vault-status{margin-top:14px!important;font-size:.66rem!important;font-weight:900;letter-spacing:.12em;color:#d29a77!important}
+    .vault-items{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+    .vault-items li{border:1px solid #3a413b;border-radius:3px;padding:18px 20px;background:rgba(255,250,242,.04)}
+    .vault-items small{display:block;color:#d29a77;font-size:.62rem;font-weight:900;letter-spacing:.13em;margin-bottom:6px}
+    .vault-items b{display:block;font-size:1.05rem;margin-bottom:4px}
+    .vault-items p{margin:0;color:#c4cbc4;font-size:.86rem}
+    .vault [hidden]{display:none!important}
+    .vault-note{margin:16px 0 0;color:#929a92;font-size:.7rem}
+    @media(max-width:600px){
+      .boundary{flex-direction:column;align-items:flex-start;gap:10px;padding:16px 14px}.boundary i{width:100%;flex:none}
+      .vault{padding:22px 18px}.vault-locked{grid-template-columns:1fr;gap:16px}
+    }
+
     /* Reveal */
     .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
     .reveal.visible{opacity:1;transform:none}
@@ -181,7 +209,7 @@
       <a class="brand" href="#top" aria-label="처음으로">JH<span>.</span></a>
       <button class="menu" type="button" aria-expanded="false" aria-controls="nav-menu">MENU</button>
       <nav id="nav-menu" aria-label="주요 메뉴">
-        <a href="#about">ABOUT</a><a href="#experiences">EXPERIENCES</a><a href="#values">VALUES</a><a href="#evidence">EVIDENCE</a><a href="#now">NOW</a>
+        <a href="#about">ABOUT</a><a href="#experiences">EXPERIENCES</a><a href="#values">VALUES</a><a href="#evidence">EVIDENCE</a><a href="#now">NOW</a><a href="#private">PRIVATE</a>
       </nav>
     </div>
   </header>
@@ -333,6 +361,35 @@
         <div class="now-copy reveal"><p class="big">새로운 분야를 배우는 일은<br>아직 진행 중입니다.</p><p>지금은 네트워크와 AI를 배우고 있습니다. 전공과 지금의 관심사가 완전히 같지는 않지만, 새로운 것을 직접 경험하고 더 깊게 알아가는 방식은 계속 이어가고 있습니다.</p><div class="now-line"><i></i> STILL CURIOUS</div></div>
       </div>
     </section>
+
+    <div class="boundary" role="separator" aria-label="여기까지는 공개, 여기부터는 비공개">
+      <span class="b-pub">▲ PUBLIC · 누구나 볼 수 있습니다</span><i aria-hidden="true"></i><span class="b-priv">PRIVATE · 패스키로만 열립니다 ▼</span>
+    </div>
+
+    <section class="private" id="private" aria-labelledby="private-title">
+      <div class="section-head reveal">
+        <div class="index">06<span>PRIVATE</span></div>
+        <div>
+          <p class="eyebrow">ONLY FOR ME</p>
+          <h2 id="private-title">MY OWN PLACE,<br><em>LOCKED BY PASSKEY.</em></h2>
+          <p class="private-lead">위의 소개는 누구나 볼 수 있습니다. 이 아래의 메모·목록·회고는 패스키로 들어온 사람에게만 서버가 내려 줍니다.</p>
+        </div>
+      </div>
+      <div class="vault reveal" id="vault" aria-live="polite">
+        <div class="vault-locked" id="vault-locked">
+          <div class="vault-lock" aria-hidden="true">
+            <svg viewBox="0 0 34 34" fill="none" stroke="#d29a77" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="15" width="22" height="15" rx="2"/><path d="M11 15v-4a6 6 0 0 1 12 0v4"/></svg>
+          </div>
+          <div>
+            <h3>잠겨 있습니다</h3>
+            <p>패스키로 들어가지 않은 상태입니다. 서버가 이 자리의 내용을 보내지 않았기 때문에, 이 페이지의 소스에도 내용이 들어 있지 않습니다.</p>
+            <p class="vault-status" id="vault-status">서버에 확인하는 중…</p>
+          </div>
+        </div>
+        <ul class="vault-items" id="vault-items" hidden></ul>
+        <p class="vault-note">※ 이 자리에 들어가는 내용은 모두 만들어 넣은 것이며, 실제 개인정보는 없습니다.</p>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -394,6 +451,43 @@
           menuButton.focus();
         }
       });
+    })();
+  </script>
+
+  <script>
+    // 나만의 자리: 내용은 이 파일에 없고, 서버가 로그인한 사람에게만 내려 줍니다.
+    // 서버가 200이 아닌 답을 주면(또는 서버에 닿지 못하면) 잠금 상태를 그대로 둡니다.
+    (async () => {
+      const locked = document.getElementById("vault-locked");
+      const list = document.getElementById("vault-items");
+      const status = document.getElementById("vault-status");
+      if (!locked || !list || !status) return;
+      try {
+        const res = await fetch("/api/private/items", {
+          credentials: "same-origin",
+          headers: { Accept: "application/json" }
+        });
+        if (res.status !== 200) {
+          status.textContent = ("서버 응답 " + res.status + " " + (res.statusText || "")).trim();
+          return;
+        }
+        const data = await res.json();
+        list.replaceChildren(...data.items.map(item => {
+          const li = document.createElement("li");
+          const kind = document.createElement("small");
+          const title = document.createElement("b");
+          const body = document.createElement("p");
+          kind.textContent = item.kind;
+          title.textContent = item.title;
+          body.textContent = item.body;
+          li.append(kind, title, body);
+          return li;
+        }));
+        list.hidden = false;
+        locked.hidden = true;
+      } catch (e) {
+        status.textContent = "서버에 연결하지 못했습니다. 잠금 상태를 유지합니다.";
+      }
     })();
   </script>
 </body>

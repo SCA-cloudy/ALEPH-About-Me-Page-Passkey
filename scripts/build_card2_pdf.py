@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 D = ROOT / "evidence" / "card2" / "deployed"
 e = html.escape
-img = lambda n: base64.b64encode((D / n).read_bytes()).decode()
+img = lambda n: base64.b64encode(((ROOT / "evidence" / "card4" / "deployed" / n[3:]) if n.startswith("C4:") else (D / n)).read_bytes()).decode()
 local = json.loads((ROOT / "evidence" / "card2" / "local-test-results.json").read_text(encoding="utf-8"))
 n_ok = sum(1 for c in local["점검"] if c["결과"] == "통과"); n_all = len(local["점검"])
 log_b = (D / "log-register-B.json").read_text(encoding="utf-8").strip()
@@ -19,7 +19,7 @@ rows = [
     ("C19", "서버가 등록용 질문(challenge)을 만들어 보내고, 확인할 때까지 보관한다", "통과", "2절: 응답에 질문이 오고, 같은 값이 DB 표 passkey_challenges에 보관됨"),
     ("C20", "등록 요청마다 질문 값이 서로 다르다는 기록이 있다", "통과", "2절: 세 번의 요청이 서로 다른 질문(bMXFGuMo4H… / oEhA2mfA7c… / 2RkvKdWC9m…)"),
     ("C21", "등록이 끝나면 서버에 공개키가 저장된다", "통과", "3절: passkey_credentials에 계정 A, B 각 1건(공개키)"),
-    ("C22", "서버에 저장된 값이 있고, 그 값이 공개키이며 비밀번호가 아니라는 설명이 있다", "통과", "3절: 저장된 열과 설명(공개키 값, 비밀번호·개인키 열 없음)"),
+    ("C22", "서버에 저장된 값이 있고, 그 값이 공개키이며 비밀번호가 아니라는 설명이 있다", "통과", "3절: 저장된 열과 설명(공개키 값, 비밀번호·개인키 열 없음), 3-1절: 패스키 목록 화면"),
     ("C23", "개인키가 서버로 전송되지 않는다는 사실이 등록 요청 본문 기록으로 확인된다", "통과", "4절: 요청 본문 항목 6개(개인키 없음), 개인키는 기기에 남음"),
     ("C24", "등록한 패스키에 사람이 알아볼 수 있는 이름이 붙는다", "통과", "3절: `A 1st passkey`, `B 1st passkey`"),
     ("C25", "등록 도중 취소하면 화면에 안내가 나오고 서버에 아무것도 저장되지 않는다", "통과", "5절: 취소 안내 화면·기록, 취소 직후 passkey_credentials 0건"),
@@ -40,7 +40,7 @@ img {{ width:100%; border:1px solid #888; display:block; }} .cap {{ color:#555; 
 section {{ break-inside:avoid-page; }} ul {{ margin:4px 0 4px 18px; padding:0; }} li {{ margin:1px 0; }}
 </style></head><body>
 <h1>ALEPH 과제 8 · 카드 2 — 남길 것</h1>
-<div class="meta">확인 주소: https://aleph-about-me-page-passkey.vercel.app/ · 확인 시각(KST): 2026-10-20 15:06~15:20 · 확인한 사람: 본인(일반 Chrome 창에서 직접 등록)</div>
+<div class="meta">확인 주소: https://aleph-about-me-page-passkey.vercel.app/ · 확인 시각(KST): 2026-10-20 15:06~16:00 · 확인한 사람: 본인(일반 Chrome 창에서 직접 등록)</div>
 <div class="meta">이 문서의 내용은 모두 과제용으로 만든 것이며, 실제 개인정보와 비밀값은 없습니다. 패스키 저장 창에 보이는 계정 이메일은 담지 않았습니다.</div>
 
 <section><h2>1. 등록이 이뤄지는 순서</h2>
@@ -69,6 +69,13 @@ section {{ break-inside:avoid-page; }} ul {{ margin:4px 0 4px 18px; padding:0; }
 <img src="data:image/png;base64,{img('page-register-B.png')}" alt="계정 B 등록 직후 화면">
 <p class="cap">계정 B 등록 직후 화면(식별값 GUC1V99lWv_RklAp-X5nPA).</p></section>
 
+<section><h2>3-1. 패스키 목록 화면 (이름·등록 날짜)</h2>
+<p>로그인한 계정의 “MY PASSKEYS” 목록입니다. 패스키마다 이름과 등록 날짜가 보이고, 이 계정의 것만 나옵니다.</p>
+<img src="data:image/png;base64,{img('C4:page-list-1-passkey.png')}" alt="패스키 1개 목록" style="width:80%">
+<p class="cap">패스키가 1개일 때: <b>B 1st passkey</b>, 등록 2026-10-20 06:17(UTC).</p>
+<img src="data:image/png;base64,{img('C4:page-list-2-passkeys.png')}" alt="패스키 2개 목록" style="width:80%">
+<p class="cap">같은 계정에 두 번째 패스키 <b>B 2nd passkey</b>(등록 06:54 UTC)를 더한 뒤: 목록에 2개가 이름·날짜와 함께 보입니다. 화면 아래쪽에는 방금 등록한 값(공개키 등)이 보입니다.</p></section>
+
 <section><h2>4. 개인키가 서버로 전송되지 않는다 (C23) — 계정 B 등록의 요청·응답 기록</h2>
 <p>화면의 “요청·응답 기록”에서 복사한 글입니다. 두 번째 단계의 <b>요청 본문</b>에 있는 항목은 id, rawId, type, response(clientDataJSON, attestationObject, transports) 뿐입니다. 이 중 어느 것에도 개인키는 들어 있지 않습니다. 긴 값은 앞부분과 글자 수만 줄여 보여 주도록 만들었고(질문 challenge는 전부 보임), 개인키가 들어갈 항목 자체가 없습니다.</p>
 <pre>{e(log_b)}</pre>
@@ -93,7 +100,7 @@ section {{ break-inside:avoid-page; }} ul {{ margin:4px 0 4px 18px; padding:0; }
 
 <section><h2>8. 카드 2 통과 기준 대응</h2>
 <table><tr><th class="no">번호</th><th>기준</th><th>결과</th><th>근거</th></tr>{trs}</table>
-<div class="note"><b>이 문서의 범위</b>: 등록까지입니다. 로그인(카드 3)과 패스키 목록 화면(카드 4)은 아직 구현 전이라, 남길 것 중 “패스키 목록 화면”은 지금은 DB 표 화면(3절)으로 대신하고 로그인 구현 뒤 화면을 추가합니다. 서버 확인 코드는 외부 라이브러리 없이 Node.js 내장 crypto로 직접 구현했습니다(api/_lib/webauthn.js).</div></section>
+<div class="note"><b>이 문서의 범위</b>: 등록과 그 결과(서버에 저장된 공개키, 패스키 목록 화면)입니다. 서버 확인 코드는 외부 라이브러리 없이 Node.js 내장 crypto로 직접 구현했습니다(api/_lib/webauthn.js). 로그인·삭제 등은 별도 자료에 있습니다.</div></section>
 </body></html>"""
 
 with sync_playwright() as p:

@@ -1,0 +1,61 @@
+[
+ {
+  "단계": "1. 질문 요청 → 응답 500",
+  "시각": "오후 3:06:57",
+  "요청": {
+   "accountId": "account-a",
+   "name": "취소 테스트"
+  },
+  "응답": {
+   "error": "server_error",
+   "message": "서버에서 처리하지 못했습니다."
+  }
+ },
+ {
+  "단계": "1. 질문 요청 → 응답 200",
+  "시각": "오후 3:10:17",
+  "요청": {
+   "accountId": "account-a",
+   "name": "취소 테스트"
+  },
+  "응답": {
+   "challenge": "bMXFGuMo4HOjYPfXEU58TRfxI8xEWOSiQPlLAHeMTOE",
+   "rp": {
+    "name": "ALEPH 소개 페이지",
+    "id": "aleph-about-me-page-passkey.vercel.app"
+   },
+   "user": {
+    "id": "YWNjb3VudC1h",
+    "name": "account-a",
+    "displayName": "계정 A (보안·네트워크)"
+   },
+   "pubKeyCredParams": [
+    {
+     "type": "public-key",
+     "alg": -7
+    },
+    {
+     "type": "public-key",
+     "alg": -257
+    },
+    {
+     "type": "public-key",
+     "alg": -8
+    }
+   ],
+   "timeout": 60000,
+   "attestation": "none",
+   "excludeCredentials": [],
+   "authenticatorSelection": {
+    "residentKey": "required",
+    "requireResidentKey": true,
+    "userVerification": "preferred"
+   }
+  }
+ },
+ {
+  "단계": "2. 기기 단계",
+  "시각": "오후 3:10:41",
+  "결과": "NotAllowedError (서버로 아무것도 보내지 않음)"
+ }
+]

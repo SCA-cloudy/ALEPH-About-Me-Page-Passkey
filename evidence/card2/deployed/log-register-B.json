@@ -1,0 +1,80 @@
+[
+ {
+  "단계": "1. 질문 요청 → 응답 200",
+  "시각": "오후 3:17:37",
+  "요청": {
+   "accountId": "account-b",
+   "name": "B 1st passkey"
+  },
+  "응답": {
+   "challenge": "2RkvKdWC9meg6SQxdWYnEmeO_KrevTIpMMfxwFv3o4I",
+   "rp": {
+    "name": "ALEPH 소개 페이지",
+    "id": "aleph-about-me-page-passkey.vercel.app"
+   },
+   "user": {
+    "id": "YWNjb3VudC1i",
+    "name": "account-b",
+    "displayName": "계정 B (커피)"
+   },
+   "pubKeyCredParams": [
+    {
+     "type": "public-key",
+     "alg": -7
+    },
+    {
+     "type": "public-key",
+     "alg": -257
+    },
+    {
+     "type": "public-key",
+     "alg": -8
+    }
+   ],
+   "timeout": 60000,
+   "attestation": "none",
+   "excludeCredentials": [],
+   "authenticatorSelection": {
+    "residentKey": "required",
+    "requireResidentKey": true,
+    "userVerification": "preferred"
+   }
+  }
+ },
+ {
+  "단계": "2. 기기의 답 전송 → 응답 201",
+  "시각": "오후 3:17:52",
+  "요청": {
+   "name": "B 1st passkey",
+   "credential": {
+    "id": "GUC1V99lWv_RklAp-X5nPA",
+    "rawId": "GUC1V99lWv_RklAp-X5nPA",
+    "type": "public-key",
+    "response": {
+     "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uY3Jl…(216자)",
+     "attestationObject": "o2NmbXRkbm9uZWdhdHRTdG10oGhh…(238자)",
+     "transports": [
+      "hybrid",
+      "internal"
+     ]
+    }
+   }
+  },
+  "응답": {
+   "ok": true,
+   "account": {
+    "id": "account-b",
+    "label": "계정 B (커피)"
+   },
+   "stored": {
+    "name": "B 1st passkey",
+    "created_at": "2026-10-20T06:17:55.857546+00:00",
+    "credential_id": "GUC1V99lWv_RklAp-X5nPA",
+    "public_key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0D…(122자)",
+    "algorithm": "ES256 (P-256)",
+    "counter": 0
+   },
+   "note": "서버에는 위 공개키만 저장됩니다. 개인키는 이 기기…(47자)"
+  }
+ }
+]

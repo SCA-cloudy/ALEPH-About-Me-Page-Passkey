@@ -1,0 +1,14 @@
+{
+ "checked_at_utc": "2026-10-20T07:25:03.727Z",
+ "page_url": "https://aleph-about-me-page-passkey.vercel.app/",
+ "api_request": "GET https://aleph-about-me-page-passkey.vercel.app/api/private/items (쿠키 없음)",
+ "api_status": 401,
+ "api_content_type": "application/json; charset=utf-8",
+ "api_cache_control": "no-store",
+ "api_body": "{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}",
+ "page_source_bytes": 48667,
+ "scanned_strings": 12,
+ "page_source_matches": 0,
+ "rendered_dom_matches": 0,
+ "screen_status_text": "서버 응답 401 · 로그인하지 않은 상태"
+}

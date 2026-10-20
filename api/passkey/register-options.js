@@ -4,6 +4,7 @@ import { sendJson, methodNotAllowed, readJson } from "../_lib/http.js";
 import { getAccount, listCredentials, insertChallenge, deleteOldChallenges } from "../_lib/db.js";
 import { newChallenge, relyingParty, CHALLENGE_TTL_MS } from "../_lib/webauthn.js";
 import { getSessionAccount } from "../_lib/session.js";
+import crypto from "node:crypto";
 import { b64uEncode } from "../_lib/b64.js";
 import { NAME_RULE } from "../_lib/rules.js";
 
@@ -45,7 +46,9 @@ export default async function handler(req, res) {
     return sendJson(res, 200, {
       challenge,
       rp: { name: "ALEPH 소개 페이지", id: rp.rpID },
-      user: { id: b64uEncode(Buffer.from(account.id)), name: account.id, displayName: account.label },
+      // 사용자 식별값(user.id)을 패스키마다 다르게 만듭니다. 같은 값이면 같은 기기에서 새 패스키가 옛 패스키를 덮어쓰기 때문입니다.
+      // 형식: "<계정>:<무작위>". 로그인 때 이 앞부분이 패스키의 계정과 같은지 확인합니다. (이름에는 패스키 이름을 붙여 선택 창에서 구분됨)
+      user: { id: b64uEncode(Buffer.from(`${account.id}:${crypto.randomBytes(12).toString("hex")}`)), name: `${account.id} · ${body.name.trim()}`, displayName: `${account.label} · ${body.name.trim()}` },
       pubKeyCredParams: [
         { type: "public-key", alg: -7 }, // ES256
         { type: "public-key", alg: -257 }, // RS256
@@ -53,8 +56,8 @@ export default async function handler(req, res) {
       ],
       timeout: 60000,
       attestation: "none",
-      // 이미 등록된 패스키가 같은 기기에 또 만들어지지 않게 알려 줍니다.
-      excludeCredentials: existing.map((c) => ({ type: "public-key", id: c.credential_id, transports: c.transports ?? undefined })),
+      // excludeCredentials는 쓰지 않습니다: 같은 기기에 이름이 다른 패스키를 하나 더 만들 수 있어야 하기 때문입니다.
+      excludeCredentials: [],
       authenticatorSelection: { residentKey: "required", requireResidentKey: true, userVerification: "preferred" },
     });
   } catch (err) {

@@ -37,7 +37,9 @@ export default async function handler(req, res) {
     if (!account) return fail(res, "계정을 찾지 못했습니다.");
 
     // 3) 기기가 알려 준 사용자 값이 있으면 이 패스키의 계정과 같아야 합니다.
-    if (typeof r.userHandle === "string" && r.userHandle !== "" && b64uDecode(r.userHandle).toString("utf8") !== cred.account_id) {
+    // (사용자 값 형식: "<계정>" 또는 "<계정>:<무작위>")
+    const uh = typeof r.userHandle === "string" && r.userHandle !== "" ? b64uDecode(r.userHandle).toString("utf8") : null;
+    if (uh !== null && uh !== cred.account_id && !uh.startsWith(cred.account_id + ":")) {
       return fail(res, "패스키의 계정 정보가 맞지 않습니다.");
     }
 

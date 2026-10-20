@@ -29,7 +29,7 @@
     {
       "항목": "서버에 패스키 1건 저장, 이름이 붙음",
       "결과": "통과",
-      "내용": "[{\"id\": \"ab431909-b0e9-4ec9-9c27-6e914bec8339\", \"name\": \"점검용 가상 기기 A\", \"credential_id\": \"AFb7P8wJFCOeDhWrdNNop0ZfFevpwkjN0AD3ItVRXws\", \"public_key\": \"MFkwEwYHKo"
+      "내용": "[{\"id\": \"967eb186-6f0b-4a71-8257-d26b81d8d463\", \"name\": \"점검용 가상 기기 A\", \"credential_id\": \"J2B3fa85J7RhLNlnpJKLi0TYa8OmwQQjQBDG-TM_XrI\", \"public_key\": \"MFkwEwYHKo"
     },
     {
       "항목": "화면에 보인 '서버 저장 값'이 실제 저장된 공개키와 같음",
@@ -39,7 +39,7 @@
     {
       "항목": "개인키 값이 어떤 요청·응답에도 없음",
       "결과": "통과",
-      "내용": "개인키 184자, 오간 본문 2145자 검사"
+      "내용": "개인키 184자, 오간 본문 2255자 검사"
     },
     {
       "항목": "등록 요청 본문의 항목은 공개 정보뿐",
@@ -49,7 +49,7 @@
     {
       "항목": "등록 요청 3번의 질문이 모두 다름",
       "결과": "통과",
-      "내용": "vxvuz5UhAf… / 1c8GznqXJR… / PaOKlFsrGY…"
+      "내용": "Lvx-TU8hMN… / x6LYPfnaZb… / FkHl0TdXhP…"
     },
     {
       "항목": "출처를 바꾼 값은 거절(400)",

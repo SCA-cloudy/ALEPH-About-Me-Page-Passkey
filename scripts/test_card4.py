@@ -38,7 +38,7 @@ try:
                             "hasUserVerification": True, "isUserVerified": True, "automaticPresenceSimulation": True}})["authenticatorId"]
             for c in cred_list: cdp.send("WebAuthn.addCredential", {"authenticatorId": cur["id"], "credential": c})
         def creds(): return cdp.send("WebAuthn.getCredentials", {"authenticatorId": cur["id"]})["credentials"]
-        def uh(c): return base64.b64decode(c["userHandle"]).decode()
+        def uh(c): return base64.b64decode(c["userHandle"]).decode().split(":")[0]
         set_auth("internal", [])
         page.goto(BASE + "/#private", wait_until="load")
         page.wait_for_function("document.getElementById('vault-status').textContent.includes('401')")
@@ -74,10 +74,11 @@ try:
         check("마지막 패스키는 삭제 거절(화면 안내)", "마지막" in msg and count()["account-b"] == 1, msg)
 
         # 같은 계정에 두 번째 패스키: 기기에서 첫 번째 패스키를 치운 상태(=다른 인증 장치)에서 만들고, 첫 번째를 되돌림
-        set_auth("usb", [])   # 다른 인증 장치(보안 키)를 꽂은 상황
+        # 같은 기기(이미 B first가 들어 있는 장치)에 이름이 다른 두 번째 패스키를 만듭니다. (사용자 식별값이 달라 덮어쓰지 않음)
         m = register("account-b", "B second")
+        check("같은 기기에 패스키가 2개로 따로 저장됨(덮어쓰지 않음)", len([c for c in creds() if uh(c) == "account-b"]) == 2, str(len(creds())))
         check("로그인한 상태에서 두 번째 패스키 추가", m.startswith("등록했습니다"), m)
-        b_second = [c for c in creds() if uh(c) == "account-b"][0]
+        b_second = [c for c in creds() if uh(c) == "account-b" and c["credentialId"] != b_first["credentialId"]][0]
         page.wait_for_function("document.querySelectorAll('#pk-list li').length===2")
         names = page.inner_text("#pk-list")
         check("목록: 2개, 이름과 날짜", "B first" in names and "B second" in names, names.replace("\n", " | "))
@@ -96,7 +97,7 @@ try:
         s, t = http("POST", "/api/passkey/delete", {"id": a_id}, None)
         check("로그인 없이 삭제 요청은 401", s == 401)
         s, t = http("POST", "/api/passkey/register-options", {"accountId": "account-a", "name": "x"}, cookie)
-        check("로그인한 B가 본문에 account-a를 적어 등록 요청해도 B 계정용 질문(user=account-b)", s == 200 and json.loads(t)["user"]["name"] == "account-b", t[:0])
+        check("로그인한 B가 본문에 account-a를 적어 등록 요청해도 B 계정용 질문(user=account-b)", s == 200 and json.loads(t)["user"]["name"].startswith("account-b"), t[:0])
 
         # B first 삭제 (화면에서)
         page.locator("#pk-list li", has_text="B first").locator(".vault-btn").click()
@@ -111,7 +112,7 @@ try:
         check("삭제한 패스키(B first)로 로그인하면 거절", "삭제" in m or "등록되어 있지" in m, m)
         check("거절 후에도 잠김 상태, 자료 요청 401", page.is_visible("#vault-locked") and http("GET", "/api/private/items", None, None)[0] == 401)
         # 남은 B second 로는 로그인 됨
-        set_auth("usb", [b_second])
+        set_auth("internal", [b_second])
         m = login()
         check("남은 패스키(B second)로 로그인 성공", "계정 B" in m and "B second" in m, m)
         page.wait_for_selector("#vault-items:not([hidden])")

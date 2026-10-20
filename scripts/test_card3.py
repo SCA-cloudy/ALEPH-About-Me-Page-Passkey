@@ -52,7 +52,7 @@ try:
         check("A 등록", register("account-a", "A 가상기기").startswith("등록했습니다"))
         check("B 등록", register("account-b", "B 가상기기").startswith("등록했습니다"))
         creds = cdp.send("WebAuthn.getCredentials", {"authenticatorId": authA})["credentials"]
-        by_user = {bytes.fromhex(c["userHandle"]).decode() if False else __import__("base64").b64decode(c["userHandle"]).decode(): c for c in creds}
+        by_user = {bytes.fromhex(c["userHandle"]).decode() if False else __import__("base64").b64decode(c["userHandle"]).decode().split(":")[0]: c for c in creds}
         check("가상 기기에 A·B 패스키가 각각 있음", set(by_user) == {"account-a", "account-b"}, str(sorted(by_user)))
         def only(account):
             """기기에 해당 계정의 패스키만 남깁니다 (자동 선택으로 로그인 계정을 정하기 위함)"""

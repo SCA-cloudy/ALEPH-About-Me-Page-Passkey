@@ -28,8 +28,8 @@
 | 16:09 | 계정 B로 로그인해 A를 건드림 | 주소·본문에 A를 적어도 B 것만, A 패스키 삭제 404 | 통과 | evidence/card5/deployed/console-B-touches-A.* |
 | 16:13 | 계정 A로 로그인해 B를 건드림 | 같음 | 통과 | evidence/card5/deployed/console-A-touches-B.* |
 | 16:06 → 16:16 | 시험 전·후 DB `passkey_credentials` | 2행, id·날짜 그대로 | 통과 | db-credentials-before/after.png |
-| 16:25 | 최종 점검: 시크릿 창에서 공개 페이지(코드 변경 뒤 다시) | 자료 API 401, 페이지 소스·화면에 비공개 문장 0/12건 | 통과 | evidence/final/ |
 | 16:20 | 계정 A 로그인 화면 | A의 자료 3개(보안), 패스키 `A 1st passkey` | 통과 | page-logged-in-A.png |
+| 16:25 | 최종 점검: 시크릿 창에서 공개 페이지(코드 변경 뒤 다시) | 자료 API 401, 페이지 소스·화면에 비공개 문장 0/12건 | 통과 | evidence/final/ |
 
 ## 3. 시험 중 있었던 문제
 

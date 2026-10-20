@@ -1,0 +1,7 @@
+[
+ {"단계": "로그아웃 → 응답 200", "시각": "오후 4:02:04", "응답": {"ok": true, "message": "로그아웃했습니다. 서버에서 세션을 지웠습니다."}},
+ {"단계": "1. 질문 요청 → 응답 200", "시각": "오후 4:02:19", "응답": {"challenge": "Vkdu32PEYYsSO-2zUekfc13RjOx8mGI2NwdFQaGgY2k", "rpId": "aleph-about-me-page-passkey.vercel.app", "timeout": 60000, "userVerification": "preferred", "allowCredentials": []}},
+ {"단계": "2. 기기의 서명 전송 → 응답 401", "시각": "오후 4:02:30",
+  "요청": {"credential": {"id": "GUC1V99lWv_RklAp-X5nPA", "rawId": "GUC1V99lWv_RklAp-X5nPA", "type": "public-key", "response": {"clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0…(212자)", "authenticatorData": "tlIfqw_H8uK6OUuW5uW_lw41Jov3…(50자)", "signature": "MEUCIQCgf1Bwc90uSe8ZmqOXm1fE…(95자)", "userHandle": "YWNjb3VudC1i"}}},
+  "응답": {"error": "login_failed", "message": "등록되어 있지 않은(또는 삭제된) 패스키입니다."}}
+]

@@ -32,10 +32,9 @@ log_html = md(log.split("\n", 2)[2].replace("## 1.", "### 1.").replace("## 2.", 
 c = []
 def sec(t): c.append(f"<h2>{t}</h2>")
 sec("① 공개 영역과 비공개 영역을 가른 화면, 로그인 없이 받은 응답 본문")
-c.append(row(img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "45%"), img("card1/deployed/deployed-api-body-tall.png", "로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐", "45%")))
+c.append(row(img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "36%"), img("card1/deployed/deployed-api-body-tall.png", "로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐", "36%")))
 c.append("<p>로그인 없이 받은 응답(요청: GET /api/private/items, 쿠키 없음) — 상태 401, 본문 <code>{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}</code>. 페이지 소스·화면에서 비공개 문장 0/12건.</p>")
-c.append(keep(img("card1/deployed/deployed-console-full.png", "위 결과가 나온 콘솔 화면(점검 명령어와 출력 결과, 401 줄 포함)", "78%"),
-  "<p><b>정리</b>: api_status 401 · api_content_type application/json · api_cache_control no-store · scanned_strings 12 · page_source_matches 0 · rendered_dom_matches 0 · screen_status_text “서버 응답 401”. (점검 시각 2026-10-20T05:16:15Z, 쿠키 없음)</p>"))
+c.append('<div class="p2">' + pre("card1/deployed/console-result.json") + img("card1/deployed/deployed-console-full.png", "위 결과가 나온 콘솔 화면(점검 명령어와 출력 결과, 401 줄 포함)", "62%") + "</div>")
 c.append(img("final/incognito-final-check.png", "수정이 모두 끝난 뒤 다시 한 시크릿 창 점검: 자료 API 401, 비공개 문장 0/12건"))
 
 sec("② 등록 요청과 응답 기록, 서버에 저장된 공개키, 패스키 목록 화면")
@@ -90,7 +89,7 @@ table {{ border-collapse:collapse; width:100%; font-size:8.6pt; margin:6px 0; }}
 pre {{ background:#f6f4ee; border:1px solid #cfc7b9; padding:6px 8px; font-size:7.2pt; white-space:pre-wrap; word-break:break-all; line-height:1.35; font-family:'Noto Sans Mono CJK KR','DejaVu Sans Mono',monospace; }}
 code {{ font-family:'Noto Sans Mono CJK KR','DejaVu Sans Mono',monospace; font-size:.9em; background:#f1eee6; padding:0 2px; }}
 pre code {{ background:none; padding:0; }}
-figure {{ margin:6px auto; break-inside:avoid; }} .keep {{ break-inside:avoid; }} .keep p {{ margin:4px 0; }} pre {{ break-inside:avoid; }} pre.two {{ column-count:2; column-gap:14px; font-size:6.6pt; }} figure.c img {{ aspect-ratio:1080/985; object-fit:cover; object-position:top; }} figure img {{ width:100%; border:1px solid #888; display:block; }} figcaption {{ font-size:8pt; color:#555; margin-top:2px; }}
+figure {{ margin:6px auto; break-inside:avoid; }} .keep {{ break-inside:avoid; }} .keep p {{ margin:4px 0; }} pre {{ break-inside:avoid; }} div.p2 pre {{ font-size:6.4pt; margin:4px 0; padding:4px 8px; line-height:1.25; }} div.p2 figure {{ margin:4px auto; }} pre.two {{ column-count:2; column-gap:14px; font-size:6.6pt; }} figure.c img {{ aspect-ratio:1080/985; object-fit:cover; object-position:top; }} figure img {{ width:100%; border:1px solid #888; display:block; }} figcaption {{ font-size:8pt; color:#555; margin-top:2px; }}
 .row.eq {{ align-items:stretch; }} .row.eq .frame {{ display:flex; flex-direction:column; justify-content:center; border:1px solid #888; background:#f4f4f4; padding:8px; box-sizing:border-box; }} .frame figure {{ margin:0; }} .frame .cap {{ font-size:8pt; color:#555; margin-top:8px; text-align:center; }} .row.eq21 {{ align-items:center; }} .row.eq21 pre {{ margin:0; }} .row {{ display:flex; gap:2%; align-items:flex-start; break-inside:avoid; }}
 .note {{ background:#fff7e6; border-left:4px solid #d29a77; padding:5px 9px; font-size:9pt; }}
 div.log td:nth-last-child(2) {{ white-space:nowrap; }}

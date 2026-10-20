@@ -10,11 +10,14 @@ E = R / "evidence"
 e = html.escape
 def img(path, cap="", w="100%"):
     b = base64.b64encode((E / path).read_bytes()).decode()
-    return f'<figure style="width:{w}"><img src="data:image/png;base64,{b}"><figcaption>{e(cap)}</figcaption></figure>'
+    return f'<figure style="width:{w};margin-left:auto;margin-right:auto"><img src="data:image/png;base64,{b}"><figcaption>{e(cap)}</figcaption></figure>'
+def keep(*parts): return '<div class="keep">' + ''.join(parts) + '</div>'
 def row(*figs): return '<div class="row">' + "".join(figs) + "</div>"
 def jtxt(path):
     return json.dumps(json.loads((E / path).read_text(encoding="utf-8")), ensure_ascii=False, indent=1)
-def pre(path): return f"<pre>{e(jtxt(path))}</pre>"
+def pre(path):
+    t = jtxt(path); cls = ' class="two"' if t.count("\n") > 28 else ""
+    return f"<pre{cls}>{e(t)}</pre>"
 def md(text): return markdown.markdown(text, extensions=["tables", "fenced_code"])
 
 sub = (R / "docs" / "SUBMISSION.md").read_text(encoding="utf-8")
@@ -32,12 +35,11 @@ sec("① 공개 영역과 비공개 영역을 가른 화면, 로그인 없이 �
 c.append(row(img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "46%"),
              '<div style="width:52%">' + img("card1/deployed/deployed-api-body.png", "로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐") + "</div>"))
 c.append("<p>로그인 없이 받은 응답(요청: GET /api/private/items, 쿠키 없음) — 상태 401, 본문 <code>{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}</code>. 페이지 소스·화면에서 비공개 문장 0/12건.</p>")
-c.append(pre("card1/deployed/console-result.json"))
-c.append(img("card1/deployed/deployed-console-result.png", "위 결과가 나온 콘솔 화면"))
+c.append(keep(pre("card1/deployed/console-result.json"), img("card1/deployed/deployed-console-result.png", "위 결과가 나온 콘솔 화면", "60%")))
 c.append(img("final/incognito-final-check.png", "수정이 모두 끝난 뒤 다시 한 시크릿 창 점검: 자료 API 401, 비공개 문장 0/12건"))
 
 sec("② 등록 요청과 응답 기록, 서버에 저장된 공개키, 패스키 목록 화면")
-c.append("<p>계정 B 등록의 요청·응답 기록(화면의 “요청·응답 기록 보기”에서 복사). 요청 본문에 개인키는 없습니다.</p><pre>" + e((E / "card2/deployed/log-register-B.json").read_text(encoding="utf-8")) + "</pre>")
+c.append("<p>계정 B 등록의 요청·응답 기록(화면의 “요청·응답 기록 보기”에서 복사). 요청 본문에 개인키는 없습니다.</p><pre class=\"two\">" + e((E / "card2/deployed/log-register-B.json").read_text(encoding="utf-8")) + "</pre>")
 c.append(row(img("card2/deployed/page-register-A.png", "계정 A 등록 직후", "49%"), img("card2/deployed/page-register-B.png", "계정 B 등록 직후", "49%")))
 c.append(img("card2/deployed/db-credentials-2rows.png", "서버(Supabase)에 저장된 것은 공개키(public_key)와 이름뿐. 비밀번호·개인키 열은 없음"))
 c.append(img("card2/deployed/db-challenges-3rows.png", "서버가 낸 일회용 질문 3건: 모두 다른 값. 쓴 질문은 used_at이 찍힘(취소한 시도는 NULL)"))
@@ -51,8 +53,7 @@ c.append(row(img("card3/deployed/page-locked.png", "로그인 전: 잠김, 비�
 c.append("<p><b>성공한 로그인 요청·응답</b>(질문 요청 → 기기 서명 → 서버 응답 200). 토큰은 마스킹.</p>" + pre("card3/deployed/log-login-B.json"))
 c.append(img("card3/deployed/db-sessions-1row.png", "로그인 중 passkey_sessions: 1행. token_hash는 토큰의 해시(원문 아님)"))
 c.append(img("card3/deployed/db-credentials-counter0.png", "서명 횟수(counter)는 0 — 동기화 패스키는 0을 보냄"))
-c.append("<p><b>실패한 요청과 이미 쓴 질문의 재사용</b>(배포 주소 콘솔 스크립트): 망가뜨린 서명 401, 서버가 낸 적 없는 질문 401, <u>같은 로그인 값(이미 쓴 질문) 재전송 401</u>, 질문은 요청마다 새 값, 로그아웃 후 자료 요청 401.</p>" + pre("card3/deployed/console-result.json"))
-c.append(img("card3/deployed/console-checks.png", "위 결과가 나온 콘솔 화면(401 오류 줄이 거절의 증거)"))
+c.append(keep("<p><b>실패한 요청과 이미 쓴 질문의 재사용</b>(배포 주소 콘솔 스크립트): 망가뜨린 서명 401, 서버가 낸 적 없는 질문 401, <u>같은 로그인 값(이미 쓴 질문) 재전송 401</u>, 질문은 요청마다 새 값, 로그아웃 후 자료 요청 401.</p>" + pre("card3/deployed/console-result.json"), img("card3/deployed/console-checks.png", "위 결과가 나온 콘솔 화면(401 오류 줄이 거절의 증거)", "60%")))
 c.append(row(img("card3/deployed/page-logged-out.png", "로그아웃 후 다시 잠김(서버 응답 401)", "49%"), img("card3/deployed/db-sessions-empty.png", "로그아웃 후 passkey_sessions 0행", "49%")))
 
 sec("④ 패스키 두 개가 보이는 목록, 하나를 지운 뒤의 로그인 성공과 실패 기록")
@@ -73,13 +74,10 @@ sec("⑤ 확인 네 가지의 요청과 응답, 인증 구현 설명서 여섯 �
 c.append("<p>확인 네 가지: ㉮ 로그인 없이 비공개 자료 → 401 (위 ①) ㉯ 서명이 맞으면 200, 망가뜨리면 401 (위 ③) ㉰ 같은 질문 재사용: 처음 200, 둘째 401 (위 ③) ㉱ 다른 계정 건드리기 (아래).</p>")
 c.append("<p>두 계정의 비공개 내용은 서로 다릅니다. 계정 A(보안·네트워크): ARCHIVE “ALEPH 대형 과제 정리”, ROADMAP “자격증 준비 + 지원 공고”, REVIEW “이번 주에 새로 배운 것”. 계정 B(커피): ARCHIVE “커피 커뮤니티 경험 정리”, ROADMAP “지원 공고 + 자격증 + 커핑 + 대회”, REVIEW “추출 연습에서 배운 것”.</p>")
 c.append(img("card5/deployed/page-logged-in-A.png", "계정 A로 로그인한 화면: A의 자료와 A의 패스키만", "62%"))
-c.append("<p><b>B로 로그인해서 A를 건드림</b> (주소·본문에 account-a를 적고, A의 패스키 id로 삭제 요청)</p>" + pre("card5/deployed/console-B-touches-A.json"))
-c.append(img("card5/deployed/console-B-touches-A.png", "실행 화면"))
-c.append("<p><b>A로 로그인해서 B를 건드림</b></p>" + pre("card5/deployed/console-A-touches-B.json"))
-c.append(img("card5/deployed/console-A-touches-B.png", "실행 화면"))
+c.append(keep("<p><b>B로 로그인해서 A를 건드림</b> (주소·본문에 account-a를 적고, A의 패스키 id로 삭제 요청)</p>" + pre("card5/deployed/console-B-touches-A.json"), img("card5/deployed/console-B-touches-A.png", "실행 화면", "55%")))
+c.append(keep("<p><b>A로 로그인해서 B를 건드림</b></p>" + pre("card5/deployed/console-A-touches-B.json"), img("card5/deployed/console-A-touches-B.png", "실행 화면", "55%")))
 c.append("<p>시험 전·후 DB passkey_credentials(2행, id·날짜 그대로) — 삭제 요청이 다른 계정의 것을 지우지 않았음:</p>")
-c.append(img("card5/deployed/db-credentials-before.png", "시험 전 (A 1행, B 1행)"))
-c.append(img("card5/deployed/db-credentials-after.png", "시험 후 (그대로)"))
+c.append(keep(img("card5/deployed/db-credentials-before.png", "시험 전 (A 1행, B 1행)", "85%"), img("card5/deployed/db-credentials-after.png", "시험 후 (그대로)", "85%")))
 evid = "\n".join(c)
 
 doc = f"""<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
@@ -91,7 +89,7 @@ table {{ border-collapse:collapse; width:100%; font-size:8.6pt; margin:6px 0; }}
 pre {{ background:#f6f4ee; border:1px solid #cfc7b9; padding:6px 8px; font-size:7.2pt; white-space:pre-wrap; word-break:break-all; line-height:1.35; font-family:'Noto Sans Mono CJK KR','DejaVu Sans Mono',monospace; }}
 code {{ font-family:'Noto Sans Mono CJK KR','DejaVu Sans Mono',monospace; font-size:.9em; background:#f1eee6; padding:0 2px; }}
 pre code {{ background:none; padding:0; }}
-figure {{ margin:6px 0; break-inside:avoid; }} figure img {{ width:100%; border:1px solid #888; display:block; }} figcaption {{ font-size:8pt; color:#555; margin-top:2px; }}
+figure {{ margin:6px auto; break-inside:avoid; }} .keep {{ break-inside:avoid; }} .keep p {{ margin:4px 0; }} pre {{ break-inside:avoid; }} pre.two {{ column-count:2; column-gap:14px; font-size:6.6pt; }} figure img {{ width:100%; border:1px solid #888; display:block; }} figcaption {{ font-size:8pt; color:#555; margin-top:2px; }}
 .row {{ display:flex; gap:2%; align-items:flex-start; break-inside:avoid; }}
 .note {{ background:#fff7e6; border-left:4px solid #d29a77; padding:5px 9px; font-size:9pt; }}
 div.log td:nth-last-child(2) {{ white-space:nowrap; }}

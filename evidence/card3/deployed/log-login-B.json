@@ -1,0 +1,37 @@
+[
+ {
+  "단계": "1. 질문 요청 → 응답 200",
+  "시각": "오후 3:29:42",
+  "응답": {
+   "challenge": "DmJP5AUwoFwzY-bGhiwnEhVoBpureug-CT_4w79zJ-Y",
+   "rpId": "aleph-about-me-page-passkey.vercel.app",
+   "timeout": 60000,
+   "userVerification": "preferred",
+   "allowCredentials": []
+  }
+ },
+ {
+  "단계": "2. 기기의 서명 전송 → 응답 200",
+  "시각": "오후 3:30:11",
+  "요청": {
+   "credential": {
+    "id": "GUC1V99lWv_RklAp-X5nPA",
+    "rawId": "GUC1V99lWv_RklAp-X5nPA",
+    "type": "public-key",
+    "response": {
+     "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0…(358자)",
+     "authenticatorData": "tlIfqw_H8uK6OUuW5uW_lw41Jov3…(50자)",
+     "signature": "MEUCIFYyu4RFrppU0m9q2AJv1aRx…(95자)",
+     "userHandle": "YWNjb3VudC1i"
+    }
+   }
+  },
+  "응답": {
+   "ok": true,
+   "account": {"id": "account-b", "label": "계정 B (커피)"},
+   "passkey": {"name": "B 1st passkey"},
+   "session": {"token_preview": "kFbP…(43자)", "expires_in_hours": 8, "where": "HttpOnly 쿠키(화면 스크립트는 읽을 수 없음…(42자)"},
+   "counter": 0
+  }
+ }
+]

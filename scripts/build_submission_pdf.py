@@ -27,46 +27,59 @@ log = (R / "docs" / "TESTLOG.md").read_text(encoding="utf-8")
 log_html = md(log.split("\n", 2)[2].replace("## 1.", "### 1.").replace("## 2.", "### 2.").replace("## 3.", "### 3."))
 
 c = []
-c.append("<h2>카드 1 — 공개와 비공개 나누기 (로그인 없이)</h2>")
+def sec(t): c.append(f"<h2>{t}</h2>")
+sec("① 공개 영역과 비공개 영역을 가른 화면, 로그인 없이 받은 응답 본문")
 c.append(row(img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "46%"),
-             '<div style="width:52%">' + img("card1/deployed/deployed-api-body.png", "로그인 없이 /api/private/items 를 열면 401") + img("card1/deployed/deployed-console-result.png", "콘솔 점검: api_status 401, 페이지 소스·화면에서 비공개 문장 0건") + "</div>"))
-c.append("<h2>카드 2 — 패스키 등록</h2>")
-c.append(img("card2/deployed/db-challenges-3rows.png", "서버가 낸 일회용 질문 3건: 모두 다른 값. 쓴 질문은 used_at이 찍혀 다시 못 씀(취소한 시도는 NULL)"))
-c.append(img("card2/deployed/db-credentials-2rows.png", "서버에 저장된 것은 공개키(public_key)와 이름뿐. 비밀번호·개인키 열은 없음"))
-c.append(row(img("card2/deployed/page-register-A.png", "계정 A 등록 직후", "49%"), img("card2/deployed/page-register-B.png", "계정 B 등록 직후", "49%")))
+             '<div style="width:52%">' + img("card1/deployed/deployed-api-body.png", "로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐") + "</div>"))
+c.append("<p>로그인 없이 받은 응답(요청: GET /api/private/items, 쿠키 없음) — 상태 401, 본문 <code>{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}</code>. 페이지 소스·화면에서 비공개 문장 0/12건.</p>")
+c.append(pre("card1/deployed/console-result.json"))
+c.append(img("card1/deployed/deployed-console-result.png", "위 결과가 나온 콘솔 화면"))
+c.append(img("final/incognito-final-check.png", "수정이 모두 끝난 뒤 다시 한 시크릿 창 점검: 자료 API 401, 비공개 문장 0/12건"))
+
+sec("② 등록 요청과 응답 기록, 서버에 저장된 공개키, 패스키 목록 화면")
 c.append("<p>계정 B 등록의 요청·응답 기록(화면의 “요청·응답 기록 보기”에서 복사). 요청 본문에 개인키는 없습니다.</p><pre>" + e((E / "card2/deployed/log-register-B.json").read_text(encoding="utf-8")) + "</pre>")
-c.append("<p>등록 도중 취소: 서버로 아무것도 보내지 않았고, 취소 직후 passkey_credentials는 0건.</p>")
-c.append(row(img("card2/deployed/db-credentials-empty.png", "취소 직후 passkey_credentials: 0건", "100%")))
-c.append(row(img("card2/deployed/page-403-attempt.png", "이미 패스키가 있는 계정 A에 로그인 없이 등록 시도 → 403", "70%")))
-c.append("<p>저장 위치: 개인키는 이 PC의 Chrome이 로그인된 <b>Google 비밀번호 관리자</b>에 저장했고, 서버(Supabase)에는 공개키만 있습니다.</p>")
-c.append("<h2>카드 3 — 패스키 로그인·로그아웃</h2>")
-c.append(row(img("card3/deployed/page-locked.png", "로그인 전: 잠김, 비밀번호 입력칸 없음, “패스키로 열기” 버튼", "32%"), img("card3/deployed/dialog-chooser.png", "기기의 패스키 선택 창(계정 이름만 보임)", "32%"), img("card3/deployed/page-logged-in-B.png", "로그인 후: 계정 B 자료 3개, 세션 토큰은 앞 4글자만", "32%")))
-c.append("<p>로그인 요청·응답 기록(질문 요청 → 기기 서명 → 서버 응답 200). 토큰은 마스킹되어 있고 비밀번호 항목이 없습니다.</p>" + pre("card3/deployed/log-login-B.json"))
+c.append(row(img("card2/deployed/page-register-A.png", "계정 A 등록 직후", "49%"), img("card2/deployed/page-register-B.png", "계정 B 등록 직후", "49%")))
+c.append(img("card2/deployed/db-credentials-2rows.png", "서버(Supabase)에 저장된 것은 공개키(public_key)와 이름뿐. 비밀번호·개인키 열은 없음"))
+c.append(img("card2/deployed/db-challenges-3rows.png", "서버가 낸 일회용 질문 3건: 모두 다른 값. 쓴 질문은 used_at이 찍힘(취소한 시도는 NULL)"))
+c.append(row(img("card4/deployed/page-list-1-passkey.png", "패스키 목록 화면(이름·등록 날짜·식별값)", "60%")))
+c.append("<p>등록 도중 취소: 서버로 아무것도 보내지 않았고 passkey_credentials는 0건. 이미 패스키가 있는 계정에 로그인 없이 등록 시도 → 403.</p>")
+c.append(row(img("card2/deployed/db-credentials-empty.png", "취소 직후 passkey_credentials: 0건", "49%"), img("card2/deployed/page-403-attempt.png", "로그인 없이 등록 시도 → 403", "49%")))
+c.append("<p>개인키는 이 PC의 Chrome이 로그인된 <b>Google 비밀번호 관리자</b>에 저장했고, 서버에는 공개키만 있습니다.</p>")
+
+sec("③ 성공한 로그인 요청, 실패한 요청, 이미 쓴 질문을 재사용한 요청과 거절 응답")
+c.append(row(img("card3/deployed/page-locked.png", "로그인 전: 잠김, 비밀번호 입력칸 없음", "32%"), img("card3/deployed/dialog-chooser.png", "기기의 패스키 선택 창", "32%"), img("card3/deployed/page-logged-in-B.png", "로그인 후: 계정 B 자료 3개, 토큰은 앞 4글자만", "32%")))
+c.append("<p><b>성공한 로그인 요청·응답</b>(질문 요청 → 기기 서명 → 서버 응답 200). 토큰은 마스킹.</p>" + pre("card3/deployed/log-login-B.json"))
 c.append(img("card3/deployed/db-sessions-1row.png", "로그인 중 passkey_sessions: 1행. token_hash는 토큰의 해시(원문 아님)"))
 c.append(img("card3/deployed/db-credentials-counter0.png", "서명 횟수(counter)는 0 — 동기화 패스키는 0을 보냄"))
-c.append(row(img("card3/deployed/page-logged-out.png", "로그아웃 후 다시 잠김(서버 응답 401)", "49%"), img("card3/deployed/db-sessions-empty.png", "로그아웃 후 passkey_sessions 0행 — 서버의 세션 기록도 지움", "49%")))
-c.append("<p>배포 주소에서 거절 확인(콘솔 스크립트): 망가뜨린 서명, 서버가 낸 적 없는 질문, 같은 로그인 값 재전송이 모두 401, 질문은 요청마다 새 값, 로그아웃 후 자료 요청 401.</p>" + pre("card3/deployed/console-result.json"))
+c.append("<p><b>실패한 요청과 이미 쓴 질문의 재사용</b>(배포 주소 콘솔 스크립트): 망가뜨린 서명 401, 서버가 낸 적 없는 질문 401, <u>같은 로그인 값(이미 쓴 질문) 재전송 401</u>, 질문은 요청마다 새 값, 로그아웃 후 자료 요청 401.</p>" + pre("card3/deployed/console-result.json"))
 c.append(img("card3/deployed/console-checks.png", "위 결과가 나온 콘솔 화면(401 오류 줄이 거절의 증거)"))
-c.append("<h2>카드 4 — 패스키 2개, 삭제, 거절</h2>")
-c.append(row(img("card4/deployed/page-list-1-passkey.png", "패스키 1개 목록(이름·등록 날짜)", "49%"), img("card4/deployed/page-list-2-passkeys.png", "두 번째 패스키 추가 후 목록 2개", "49%")))
+c.append(row(img("card3/deployed/page-logged-out.png", "로그아웃 후 다시 잠김(서버 응답 401)", "49%"), img("card3/deployed/db-sessions-empty.png", "로그아웃 후 passkey_sessions 0행", "49%")))
+
+sec("④ 패스키 두 개가 보이는 목록, 하나를 지운 뒤의 로그인 성공과 실패 기록")
+c.append(row(img("card4/deployed/page-list-1-passkey.png", "패스키 1개", "49%"), img("card4/deployed/page-list-2-passkeys.png", "두 번째 추가 후 목록에 2개", "49%")))
 c.append(row(img("card4/deployed/dialog-chooser-3-entries.png", "선택 창에 패스키가 따로 보임(…B 2nd passkey)", "40%"), img("card4/deployed/page-login-with-2nd.png", "두 번째 패스키로 로그인 성공", "58%")))
 c.append(pre("card4/deployed/log-login-2nd.json"))
-c.append(row(img("card4/deployed/page-deleted-1st.png", "첫 번째 패스키 삭제 → 남은 1개", "49%"), img("card4/deployed/page-last-409.png", "마지막 하나를 지우려 하면 서버가 거절(409): 0개가 되지 않음", "49%")))
-c.append(row(img("card4/deployed/page-deleted-login-rejected.png", "삭제한 패스키로 로그인 → “등록되어 있지 않은(또는 삭제된) 패스키입니다.”", "58%")))
+c.append(row(img("card4/deployed/page-deleted-1st.png", "첫 번째 패스키 삭제 → 남은 1개", "49%"), img("card4/deployed/page-last-409.png", "마지막 하나를 지우려 하면 서버가 거절(409)", "49%")))
+c.append("<p><b>삭제 뒤 실패 기록</b> — 삭제한 패스키(1st)로 로그인 → 401 “등록되어 있지 않은(또는 삭제된) 패스키입니다.”</p>")
+c.append(img("card4/deployed/page-deleted-login-rejected.png", "삭제한 패스키로 로그인 거절", "70%"))
 c.append(pre("card4/deployed/log-deleted-login-rejected.json"))
-c.append("<p><b>마지막 패스키까지 없어지면?</b> 서버가 마지막 하나의 삭제를 거절합니다(409). 0개가 되면 아무도 그 계정에 들어갈 수 없고, 주인 없는 계정이 되어 아무나 먼저 등록할 수 있게 되기 때문입니다.</p>")
-c.append("<h2>카드 5 — 두 계정 서로 건드리기</h2>")
+c.append("<p><b>삭제 뒤 로그인 성공 기록</b> — 남은 패스키(B 2nd passkey, 식별값 hmLfMUCQ…)로 로그인 → 200 (오후 4:45~4:47), 이어서 로그아웃 200.</p>")
+c.append(row(img("card4/deployed/dialog-chooser-after-delete.png", "삭제 뒤 선택 창: 남은 패스키로 로그인 시도", "49%"), img("card4/deployed/page-login-after-delete.png", "로그인 성공, 목록에는 B 2nd passkey만", "49%")))
+c.append(pre("card4/deployed/log-login-after-delete.json"))
+c.append(img("card4/deployed/page-logout-after-delete.png", "로그아웃 응답 200(오후 4:47:01), 다시 잠김", "70%"))
+c.append("<p><b>마지막 패스키까지 없어지면?</b> 서버가 마지막 하나의 삭제를 거절합니다(409). 0개가 되면 주인 없는 계정이 되어 아무나 먼저 등록할 수 있게 되기 때문입니다.</p>")
+
+sec("⑤ 확인 네 가지의 요청과 응답, 인증 구현 설명서 여섯 항목")
+c.append("<p>확인 네 가지: ㉮ 로그인 없이 비공개 자료 → 401 (위 ①) ㉯ 서명이 맞으면 200, 망가뜨리면 401 (위 ③) ㉰ 같은 질문 재사용: 처음 200, 둘째 401 (위 ③) ㉱ 다른 계정 건드리기 (아래).</p>")
 c.append("<p>두 계정의 비공개 내용은 서로 다릅니다. 계정 A(보안·네트워크): ARCHIVE “ALEPH 대형 과제 정리”, ROADMAP “자격증 준비 + 지원 공고”, REVIEW “이번 주에 새로 배운 것”. 계정 B(커피): ARCHIVE “커피 커뮤니티 경험 정리”, ROADMAP “지원 공고 + 자격증 + 커핑 + 대회”, REVIEW “추출 연습에서 배운 것”.</p>")
 c.append(img("card5/deployed/page-logged-in-A.png", "계정 A로 로그인한 화면: A의 자료와 A의 패스키만", "62%"))
 c.append("<p><b>B로 로그인해서 A를 건드림</b> (주소·본문에 account-a를 적고, A의 패스키 id로 삭제 요청)</p>" + pre("card5/deployed/console-B-touches-A.json"))
-c.append(img("card5/deployed/console-B-touches-A.png", "실행 화면(삭제 404, 자료 요청 401은 로그아웃 후 확인)"))
+c.append(img("card5/deployed/console-B-touches-A.png", "실행 화면"))
 c.append("<p><b>A로 로그인해서 B를 건드림</b></p>" + pre("card5/deployed/console-A-touches-B.json"))
 c.append(img("card5/deployed/console-A-touches-B.png", "실행 화면"))
-c.append("<p>시험 전·후 DB passkey_credentials(개수 2행, id·날짜 그대로) — 삭제 요청이 다른 계정의 것을 지우지 않았음:</p>")
+c.append("<p>시험 전·후 DB passkey_credentials(2행, id·날짜 그대로) — 삭제 요청이 다른 계정의 것을 지우지 않았음:</p>")
 c.append(img("card5/deployed/db-credentials-before.png", "시험 전 (A 1행, B 1행)"))
 c.append(img("card5/deployed/db-credentials-after.png", "시험 후 (그대로)"))
-c.append("<h2>최종 점검 — 모든 수정 뒤 시크릿 창</h2>")
-c.append(img("final/incognito-final-check.png", "자료 API 401, 페이지 소스·화면에서 비공개 문장 0/12건"))
 evid = "\n".join(c)
 
 doc = f"""<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
@@ -87,10 +100,10 @@ ul,ol {{ margin:3px 0 3px 18px; padding:0; }}
 <h1>ALEPH 개인과제 8 — 내 소개 페이지에 패스키 달기</h1>
 <div class="note">과제용으로 만들어 넣은 내용입니다. 실제 개인정보는 없습니다. 비공개 자리는 패스키로 로그인해야만 열리므로, 열린 모습과 시험 결과를 이 보고서 뒷부분의 캡처와 기록으로 남겼습니다.</div>
 {head_html}
-{expl_html}
-<h2 style="break-before:page">증거 (카드별 화면·기록)</h2>
+<h2 style="break-before:page">남긴 증거 (다섯 묶음)</h2>
 <p>모두 배포 주소(https://aleph-about-me-page-passkey.vercel.app/)에서 일반 Chrome 창으로 직접 한 시험입니다. 시각은 2026-10-20(KST).</p>
 {evid}
+<div style="break-before:page">{expl_html}</div>
 <h2 style="break-before:page">시험 기록</h2>
 <div class="log">{log_html}</div>
 </body></html>"""

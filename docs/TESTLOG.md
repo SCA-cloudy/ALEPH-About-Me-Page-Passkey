@@ -29,6 +29,7 @@
 | 16:13 | 계정 A로 로그인해 B를 건드림 | 같음 | 통과 | evidence/card5/deployed/console-A-touches-B.* |
 | 16:06 → 16:16 | 시험 전·후 DB `passkey_credentials` | 2행, id·날짜 그대로 | 통과 | db-credentials-before/after.png |
 | 16:20 | 계정 A 로그인 화면 | A의 자료 3개(보안), 패스키 `A 1st passkey` | 통과 | page-logged-in-A.png |
+| 16:45 | 패스키 하나(B 1st)를 지운 뒤, 남은 B 2nd passkey로 로그인 → 로그아웃 | 로그인 200(식별값 hmLfMUCQ…), 로그아웃 200 | 통과 | evidence/card4/deployed/*after-delete* |
 | 16:25 | 최종 점검: 시크릿 창에서 공개 페이지(코드 변경 뒤 다시) | 자료 API 401, 페이지 소스·화면에 비공개 문장 0/12건 | 통과 | evidence/final/ |
 
 ## 3. 시험 중 있었던 문제

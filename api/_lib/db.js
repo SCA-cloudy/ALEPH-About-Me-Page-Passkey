@@ -145,3 +145,15 @@ export async function sessionCount() {
   const rows = await rest("GET", "passkey_sessions?select=token_hash");
   return rows.length;
 }
+
+// ---- 패스키 목록·삭제 (카드 4) ----
+// 삭제는 "id + 계정"이 모두 맞을 때만 합니다. 다른 계정의 패스키 id를 내밀어도 아무것도 지워지지 않습니다.
+export async function deleteCredential(accountId, rowId) {
+  if (usingMemory) {
+    const i = mem.credentials.findIndex((c) => c.id === rowId && c.account_id === accountId);
+    if (i < 0) return null;
+    return mem.credentials.splice(i, 1)[0];
+  }
+  const rows = await rest("DELETE", `passkey_credentials?id=eq.${enc(rowId)}&account_id=eq.${enc(accountId)}`, { prefer: "return=representation" });
+  return rows[0] ?? null;
+}

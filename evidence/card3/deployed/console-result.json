@@ -1,0 +1,18 @@
+{
+ "checked_at_utc": "2026-10-20T06:38:34.224Z",
+ "page_url": "https://aleph-about-me-page-passkey.vercel.app/",
+ "start_items_status": 401,
+ "fresh_challenge_each_time": {
+  "first": "Y-R06Rq_jJSLgg9YEUYbgr__2T_KFEAq5bTFWhp4K8w",
+  "second": "0sP0ikERpcMGGawoLN21wXdnIeGmKMJDWLBCigWoknA",
+  "different": true
+ },
+ "tampered_signature": {"status": 401, "message": "서명을 확인하지 못했습니다: 서명이 맞지 않습니다"},
+ "items_after_tampered": 401,
+ "unissued_challenge": {"status": 401, "message": "이 질문은 이미 썼거나 기한이 지났거나, 서버가 낸 적이 없는 값입니다."},
+ "valid_login": {"status": 200, "account": "계정 B (커피)", "token_preview": "T8uS…(43자)"},
+ "items_after_login": 200,
+ "replay_same_login_value": {"status": 401, "message": "이 질문은 이미 썼거나 기한이 지났거나, 서버가 낸 적이 없는 값입니다."},
+ "logout": {"status": 200},
+ "items_after_logout": 401
+}

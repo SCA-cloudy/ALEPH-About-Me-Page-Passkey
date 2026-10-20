@@ -1,0 +1,15 @@
+{
+ "checked_at_utc": "2026-10-20T07:13:45.021Z",
+ "page_url": "https://aleph-about-me-page-passkey.vercel.app/",
+ "login": {"status": 200, "account": "account-a"},
+ "me": "account-a",
+ "other_account": "account-b",
+ "my_items": {"status": 200, "titles": ["ARCHIVE: ALEPH 대형 과제 정리", "ROADMAP: 자격증 준비 + 지원 공고", "REVIEW: 이번 주에 새로 배운 것"]},
+ "items_with_other_account_in_url": {"status": 200, "titles": ["ARCHIVE: ALEPH 대형 과제 정리", "ROADMAP: 자격증 준비 + 지원 공고", "REVIEW: 이번 주에 새로 배운 것"], "same_as_mine": true},
+ "list_with_other_account_in_url": {"status": 200, "account": "account-a", "count": 1},
+ "register_options_with_other_account_in_body": {"status": 200, "user_name_starts_with": "account-a", "note": "로그인한 계정으로 만들어져야 함"},
+ "delete_other_accounts_passkey": {"status": 404, "message": "이 계정에는 그런 패스키가 없습니다."},
+ "my_passkey_count_after": 1,
+ "logout": 200,
+ "items_after_logout": 401
+}

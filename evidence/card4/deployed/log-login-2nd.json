@@ -1,0 +1,7 @@
+[
+ {"단계": "로그아웃 → 응답 200", "시각": "오후 3:57:05", "응답": {"ok": true, "message": "로그아웃했습니다. 서버에서 세션을 지웠습니다."}},
+ {"단계": "1. 질문 요청 → 응답 200", "시각": "오후 3:57:10", "응답": {"challenge": "gbE7sjN7OgpCYA96ld31Fs4LGtq0vLddMvrFB5-wzeg", "rpId": "aleph-about-me-page-passkey.vercel.app", "timeout": 60000, "userVerification": "preferred", "allowCredentials": []}},
+ {"단계": "2. 기기의 서명 전송 → 응답 200", "시각": "오후 3:57:35",
+  "요청": {"credential": {"id": "hmLfMUCQDFie-QK8fGRXsw", "rawId": "hmLfMUCQDFie-QK8fGRXsw", "type": "public-key", "response": {"clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0…(212자)", "authenticatorData": "tlIfqw_H8uK6OUuW5uW_lw41Jov3…(50자)", "signature": "MEUCIQCRuszxwuYymXb6VBGd6Vzx…(95자)", "userHandle": "YWNjb3VudC1iOjdlMzYzMjQwMDdm…(46자)"}}},
+  "응답": {"ok": true, "account": {"id": "account-b", "label": "계정 B (커피)"}, "passkey": {"name": "B 2nd passkey"}, "session": {"token_preview": "Xy7y…(43자)", "expires_in_hours": 8, "where": "HttpOnly 쿠키(화면 스크립트는 읽을 수 없음…(42자)"}, "counter": 0}}
+]

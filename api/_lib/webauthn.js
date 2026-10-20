@@ -115,3 +115,34 @@ export function verifyRegistration({ response, expectedChallenge, expectedOrigin
     counter: auth.counter,
   };
 }
+
+// 로그인 확인: 기기가 "서버가 낸 질문"에 서명해서 돌려준 값을, 저장해 둔 공개키로 확인합니다.
+// 서명 대상 = authenticatorData + sha256(clientDataJSON)  (이 안에 질문·사이트 주소가 들어 있음)
+export function verifyAuthentication({ response, expectedChallenge, expectedOrigin, expectedRpID, publicKey, storedCounter }) {
+  const { data } = parseClientData(response.clientDataJSON);
+  if (data.type !== "webauthn.get") throw new Error("로그인 요청이 아닙니다");
+  if (data.challenge !== expectedChallenge) throw new Error("질문(challenge)이 서버가 낸 값과 다릅니다");
+  if (data.origin !== expectedOrigin) throw new Error("다른 사이트에서 만든 서명입니다");
+  if (data.crossOrigin === true) throw new Error("다른 사이트 안에서 만든 요청입니다");
+
+  const authData = b64uDecode(response.authenticatorData);
+  const auth = parseAuthData(authData);
+  if (!auth.rpIdHash.equals(sha256(Buffer.from(expectedRpID)))) throw new Error("이 사이트용 패스키가 아닙니다");
+  if (!(auth.flags & FLAG_UP)) throw new Error("기기에서 사용자 확인이 없었습니다");
+
+  const key = crypto.createPublicKey({ key: b64uDecode(publicKey), format: "der", type: "spki" });
+  const signed = Buffer.concat([authData, sha256(b64uDecode(response.clientDataJSON))]);
+  const sig = b64uDecode(response.signature);
+  const type = key.asymmetricKeyType;
+  let ok = false;
+  try {
+    ok = type === "ed25519" ? crypto.verify(null, signed, key, sig) : crypto.verify("sha256", signed, key, sig);
+  } catch {
+    ok = false;
+  }
+  if (!ok) throw new Error("서명이 맞지 않습니다");
+
+  // 서명 횟수: 0을 보내는 패스키(예: 동기화되는 패스키)가 있으므로 둘 다 0이면 통과, 아니면 반드시 늘어야 합니다.
+  if ((auth.counter !== 0 || storedCounter !== 0) && auth.counter <= storedCounter) throw new Error("서명 횟수가 늘지 않았습니다(복제된 패스키 의심)");
+  return { counter: auth.counter };
+}

@@ -165,6 +165,12 @@
     .vault-items small{display:block;color:var(--brown);font-size:.55rem;font-weight:900;letter-spacing:.13em;margin-bottom:2px}
     .vault-items b{display:block;font-size:.85rem;margin-bottom:1px}
     .vault-items p{margin:0;color:var(--muted);font-size:.74rem;white-space:pre-line}
+    .vault-btn{font:inherit;font-size:.68rem;font-weight:900;padding:7px 14px;border:1px solid var(--charcoal);border-radius:3px;background:var(--charcoal);color:var(--paper);cursor:pointer;letter-spacing:.06em}
+    .vault-btn:disabled{opacity:.5;cursor:default}
+    .vault-btn.ghost{background:transparent;color:var(--charcoal)}
+    .vault-msg{margin:6px 0 0;font-size:.66rem;font-weight:700;color:var(--charcoal)}.vault-msg.err{color:#a14a00}
+    .vault-bar{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:0 0 4px;font-size:.66rem;color:var(--charcoal)}
+    .vault-bar b{font-weight:900;color:var(--brown)}.vault-bar code{font-size:.64rem}.vault-bar .vault-btn{margin-left:auto}
     .reg{margin:10px 0 0;border:1px dashed var(--brown);border-radius:3px;background:rgba(255,255,255,.35);font-size:.7rem}
     .reg>summary{cursor:pointer;padding:8px 12px;font-weight:900;letter-spacing:.06em;font-size:.64rem;color:var(--brown)}
     .reg-body{padding:2px 12px 12px;display:grid;gap:8px}
@@ -389,8 +395,16 @@
           </div>
           <div class="vault-text"><b>나만의 자리</b><span>패스키로만 열립니다</span></div>
           <p class="vault-status" id="vault-status">서버에 확인하는 중…</p>
+          <button type="button" class="vault-btn" id="login-go">패스키로 열기</button>
+        </div>
+        <p class="vault-msg" id="login-msg" role="status"></p>
+        <div class="vault-bar" id="vault-bar" hidden>
+          <span>로그인: <b id="bar-account"></b></span>
+          <span>세션 토큰: <code id="bar-token"></code></span>
+          <button type="button" class="vault-btn ghost" id="logout-go">로그아웃</button>
         </div>
         <ul class="vault-items" id="vault-items" hidden></ul>
+        <details class="reg-log" id="login-log"><summary>로그인·로그아웃 요청·응답 기록 보기</summary><pre id="login-log-pre">아직 요청이 없습니다.</pre></details>
         <details class="reg" id="reg">
           <summary>패스키 만들기 (등록)</summary>
           <div class="reg-body">
@@ -480,37 +494,109 @@
   <script>
     // 나만의 자리: 내용은 이 파일에 없고, 서버가 로그인한 사람에게만 내려 줍니다.
     // 서버가 200이 아닌 답을 주면(또는 서버에 닿지 못하면) 잠금 상태를 그대로 둡니다.
-    (async () => {
-      const locked = document.getElementById("vault-locked");
-      const list = document.getElementById("vault-items");
-      const status = document.getElementById("vault-status");
+    // 로그인·로그아웃이 끝나면 "vault-refresh" 신호를 받아 다시 서버에 물어봅니다.
+    (() => {
+      const $ = id => document.getElementById(id);
+      const locked = $("vault-locked"), list = $("vault-items"), status = $("vault-status"), bar = $("vault-bar");
       if (!locked || !list || !status) return;
-      try {
-        const res = await fetch("/api/private/items", {
-          credentials: "same-origin",
-          headers: { Accept: "application/json" }
-        });
-        if (res.status !== 200) {
-          status.textContent = ("서버 응답 " + res.status + " " + (res.statusText || "")).trim();
-          return;
+      async function refresh() {
+        try {
+          const res = await fetch("/api/private/items", { credentials: "same-origin", cache: "no-store", headers: { Accept: "application/json" } });
+          if (res.status !== 200) {
+            list.replaceChildren(); list.hidden = true; bar.hidden = true; locked.hidden = false;
+            status.textContent = ("서버 응답 " + res.status + " " + (res.statusText || "")).trim() + " · 로그인하지 않은 상태";
+            return;
+          }
+          const data = await res.json();
+          list.replaceChildren(...data.items.map(item => {
+            const li = document.createElement("li");
+            const kind = document.createElement("small");
+            const title = document.createElement("b");
+            const body = document.createElement("p");
+            kind.textContent = item.kind;
+            title.textContent = item.title;
+            body.textContent = item.body;
+            li.append(kind, title, body);
+            return li;
+          }));
+          let who = null;
+          try { who = await (await fetch("/api/passkey/session", { credentials: "same-origin", cache: "no-store" })).json(); } catch (e) {}
+          if (who && who.loggedIn) { $("bar-account").textContent = who.account.label; $("bar-token").textContent = who.token_preview; }
+          bar.hidden = false; list.hidden = false; locked.hidden = true;
+        } catch (e) {
+          status.textContent = "서버에 연결하지 못했습니다. 잠금 상태를 유지합니다.";
         }
-        const data = await res.json();
-        list.replaceChildren(...data.items.map(item => {
-          const li = document.createElement("li");
-          const kind = document.createElement("small");
-          const title = document.createElement("b");
-          const body = document.createElement("p");
-          kind.textContent = item.kind;
-          title.textContent = item.title;
-          body.textContent = item.body;
-          li.append(kind, title, body);
-          return li;
-        }));
-        list.hidden = false;
-        locked.hidden = true;
-      } catch (e) {
-        status.textContent = "서버에 연결하지 못했습니다. 잠금 상태를 유지합니다.";
       }
+      document.addEventListener("vault-refresh", refresh);
+      refresh();
+    })();
+  </script>
+  <script>
+    // 패스키 로그인: 서버가 낸 새 질문에 기기가 서명하면, 서버가 저장된 공개키로 확인합니다. 비밀번호 입력은 없습니다.
+    (() => {
+      const $ = id => document.getElementById(id);
+      const go = $("login-go"), out = $("logout-go"), msg = $("login-msg"), logPre = $("login-log-pre");
+      if (!go) return;
+      const b64uToBuf = s => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; };
+      const bufToB64u = b => { const u = new Uint8Array(b); let bin = ""; for (const c of u) bin += String.fromCharCode(c); return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+      const short = (v, key) => {
+        if (typeof v === "string") return key === "challenge" || v.length <= 40 ? v : v.slice(0, 28) + "…(" + v.length + "자)";
+        if (Array.isArray(v)) return v.map(x => short(x));
+        if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, short(x, k)]));
+        return v;
+      };
+      const log = [];
+      const addLog = (label, data) => { log.push({ 단계: label, 시각: new Date().toLocaleTimeString("ko-KR"), ...short(data) }); logPre.textContent = JSON.stringify(log, null, 1); };
+      const say = (text, err) => { msg.textContent = text; msg.classList.toggle("err", !!err); };
+      const post = async (url, body) => {
+        const res = await fetch(url, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+        let data = null; try { data = await res.json(); } catch (e) {}
+        return { status: res.status, data };
+      };
+
+      go.addEventListener("click", async () => {
+        if (!window.isSecureContext || !window.PublicKeyCredential) { say("이 브라우저·주소에서는 패스키를 쓸 수 없습니다. (https 주소에서 최신 브라우저로 열어 주세요)", true); return; }
+        go.disabled = true;
+        try {
+          say("서버에 일회용 질문을 요청하는 중…");
+          const first = await post("/api/passkey/login-options");
+          addLog("1. 질문 요청 → 응답 " + first.status, { 응답: first.data });
+          if (first.status !== 200) { say((first.data && first.data.message) || ("서버 응답 " + first.status), true); return; }
+          const o = first.data;
+          say("기기의 패스키 창에서 확인해 주세요…");
+          let cred;
+          try {
+            cred = await navigator.credentials.get({ publicKey: { challenge: b64uToBuf(o.challenge), rpId: o.rpId, timeout: o.timeout, userVerification: o.userVerification, allowCredentials: [] } });
+          } catch (e) {
+            addLog("2. 기기 단계", { 결과: e.name + " (서버로 아무것도 보내지 않음)" });
+            if (e.name === "NotAllowedError" || e.name === "AbortError") say("취소했습니다. 로그인하지 않았습니다.");
+            else say("패스키를 쓰지 못했습니다: " + e.name, true);
+            return;
+          }
+          const r = cred.response;
+          const body = { credential: { id: cred.id, rawId: bufToB64u(cred.rawId), type: cred.type,
+            response: { clientDataJSON: bufToB64u(r.clientDataJSON), authenticatorData: bufToB64u(r.authenticatorData), signature: bufToB64u(r.signature), userHandle: r.userHandle ? bufToB64u(r.userHandle) : null } } };
+          say("서버가 서명을 확인하는 중…");
+          const second = await post("/api/passkey/login-verify", body);
+          addLog("2. 기기의 서명 전송 → 응답 " + second.status, { 요청: body, 응답: second.data });
+          if (second.status !== 200) { say((second.data && second.data.message) || ("서버 응답 " + second.status), true); return; }
+          say("로그인했습니다: " + second.data.account.label + " (패스키 이름: " + second.data.passkey.name + ")");
+          document.dispatchEvent(new Event("vault-refresh"));
+        } catch (e) {
+          say("서버에 연결하지 못했습니다.", true);
+        } finally { go.disabled = false; }
+      });
+
+      out.addEventListener("click", async () => {
+        out.disabled = true;
+        try {
+          const r = await post("/api/passkey/logout");
+          addLog("로그아웃 → 응답 " + r.status, { 응답: r.data });
+          say("로그아웃했습니다. 서버에서 세션을 지웠습니다.");
+          document.dispatchEvent(new Event("vault-refresh"));
+        } catch (e) { say("서버에 연결하지 못했습니다.", true); }
+        finally { out.disabled = false; }
+      });
     })();
   </script>
   <script>

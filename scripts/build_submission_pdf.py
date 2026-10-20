@@ -32,9 +32,9 @@ log_html = md(log.split("\n", 2)[2].replace("## 1.", "### 1.").replace("## 2.", 
 c = []
 def sec(t): c.append(f"<h2>{t}</h2>")
 sec("① 공개 영역과 비공개 영역을 가른 화면, 로그인 없이 받은 응답 본문")
-c.append(row(img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "36%"), img("card1/deployed/deployed-api-body-tall.png", "로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐", "36%")))
+c.append(row(img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "45%"), img("card1/deployed/deployed-api-body-tall.png", "로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐", "45%")))
 c.append("<p>로그인 없이 받은 응답(요청: GET /api/private/items, 쿠키 없음) — 상태 401, 본문 <code>{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}</code>. 페이지 소스·화면에서 비공개 문장 0/12건.</p>")
-c.append('<div class="p2">' + pre("card1/deployed/console-result.json") + img("card1/deployed/deployed-console-full.png", "위 결과가 나온 콘솔 화면(점검 명령어와 출력 결과, 401 줄 포함)", "62%") + "</div>")
+c.append('<div class="p2">' + pre("card1/deployed/console-result.json") + img("card1/deployed/deployed-console-result.png", "위 결과가 나온 콘솔 화면", "100%") + "</div>")
 c.append(img("final/incognito-final-check.png", "수정이 모두 끝난 뒤 다시 한 시크릿 창 점검: 자료 API 401, 비공개 문장 0/12건"))
 
 sec("② 등록 요청과 응답 기록, 서버에 저장된 공개키, 패스키 목록 화면")

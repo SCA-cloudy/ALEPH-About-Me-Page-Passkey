@@ -32,9 +32,10 @@ log_html = md(log.split("\n", 2)[2].replace("## 1.", "### 1.").replace("## 2.", 
 c = []
 def sec(t): c.append(f"<h2>{t}</h2>")
 sec("① 공개 영역과 비공개 영역을 가른 화면, 로그인 없이 받은 응답 본문")
-c.append('<div class="row eq">' + img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "49%") + '<div class="frame" style="width:49%">' + img("card1/deployed/deployed-api-body.png", "", "100%") + '<div class="cap">로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐</div></div></div>')
+c.append(row(img("card1/deployed/deployed-page.png", "시크릿 창의 공개 페이지. 맨 아래 “나만의 자리”는 잠겨 있고 PUBLIC/PRIVATE 경계선이 보임", "45%"), img("card1/deployed/deployed-api-body-tall.png", "로그인 없이 /api/private/items 를 열면 401, 본문은 안내 문장뿐", "45%")))
 c.append("<p>로그인 없이 받은 응답(요청: GET /api/private/items, 쿠키 없음) — 상태 401, 본문 <code>{\"error\":\"unauthorized\",\"message\":\"패스키로 로그인해야 볼 수 있습니다.\"}</code>. 페이지 소스·화면에서 비공개 문장 0/12건.</p>")
-c.append('<div class="row eq21"><div style="width:66%">' + pre("card1/deployed/console-result.json") + '</div>' + img("card1/deployed/deployed-console-result.png", "위 결과가 나온 콘솔 화면", "32%") + "</div>")
+c.append(keep(img("card1/deployed/deployed-console-full.png", "위 결과가 나온 콘솔 화면(점검 명령어와 출력 결과, 401 줄 포함)", "78%"),
+  "<p><b>정리</b>: api_status 401 · api_content_type application/json · api_cache_control no-store · scanned_strings 12 · page_source_matches 0 · rendered_dom_matches 0 · screen_status_text “서버 응답 401”. (점검 시각 2026-10-20T05:16:15Z, 쿠키 없음)</p>"))
 c.append(img("final/incognito-final-check.png", "수정이 모두 끝난 뒤 다시 한 시크릿 창 점검: 자료 API 401, 비공개 문장 0/12건"))
 
 sec("② 등록 요청과 응답 기록, 서버에 저장된 공개키, 패스키 목록 화면")
@@ -74,8 +75,8 @@ sec("⑤ 확인 네 가지의 요청과 응답, 인증 구현 설명서 여섯 �
 c.append("<p>확인 네 가지: ㉮ 로그인 없이 비공개 자료 → 401 (위 ①) ㉯ 서명이 맞으면 200, 망가뜨리면 401 (위 ③) ㉰ 같은 질문 재사용: 처음 200, 둘째 401 (위 ③) ㉱ 다른 계정 건드리기 (아래).</p>")
 c.append("<p>두 계정의 비공개 내용은 서로 다릅니다. 계정 A(보안·네트워크): ARCHIVE “ALEPH 대형 과제 정리”, ROADMAP “자격증 준비 + 지원 공고”, REVIEW “이번 주에 새로 배운 것”. 계정 B(커피): ARCHIVE “커피 커뮤니티 경험 정리”, ROADMAP “지원 공고 + 자격증 + 커핑 + 대회”, REVIEW “추출 연습에서 배운 것”.</p>")
 c.append(img("card5/deployed/page-logged-in-A.png", "계정 A로 로그인한 화면: A의 자료와 A의 패스키만", "62%"))
-c.append(keep("<p><b>B로 로그인해서 A를 건드림</b> (주소·본문에 account-a를 적고, A의 패스키 id로 삭제 요청)</p>" + pre("card5/deployed/console-B-touches-A.json"), img("card5/deployed/console-B-touches-A.png", "실행 화면", "55%")))
-c.append(keep("<p><b>A로 로그인해서 B를 건드림</b></p>" + pre("card5/deployed/console-A-touches-B.json"), img("card5/deployed/console-A-touches-B.png", "실행 화면", "55%")))
+c.append(keep("<p><b>B로 로그인해서 A를 건드림</b> (주소·본문에 account-a를 적고, A의 패스키 id로 삭제 요청)</p>" + pre("card5/deployed/console-B-touches-A.json"), img("card5/deployed/console-B-touches-A.png", "실행 화면", "100%")))
+c.append(keep("<p><b>A로 로그인해서 B를 건드림</b></p>" + pre("card5/deployed/console-A-touches-B.json"), img("card5/deployed/console-A-touches-B.png", "실행 화면", "100%")))
 c.append("<p>시험 전·후 DB passkey_credentials(2행, id·날짜 그대로) — 삭제 요청이 다른 계정의 것을 지우지 않았음:</p>")
 c.append(keep(img("card5/deployed/db-credentials-before.png", "시험 전 (A 1행, B 1행)", "85%"), img("card5/deployed/db-credentials-after.png", "시험 후 (그대로)", "85%")))
 evid = "\n".join(c)

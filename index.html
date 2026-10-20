@@ -165,6 +165,21 @@
     .vault-items small{display:block;color:var(--brown);font-size:.55rem;font-weight:900;letter-spacing:.13em;margin-bottom:2px}
     .vault-items b{display:block;font-size:.85rem;margin-bottom:1px}
     .vault-items p{margin:0;color:var(--muted);font-size:.74rem;white-space:pre-line}
+    .reg{margin:10px 0 0;border:1px dashed var(--brown);border-radius:3px;background:rgba(255,255,255,.35);font-size:.7rem}
+    .reg>summary{cursor:pointer;padding:8px 12px;font-weight:900;letter-spacing:.06em;font-size:.64rem;color:var(--brown)}
+    .reg-body{padding:2px 12px 12px;display:grid;gap:8px}
+    .reg-body p{margin:0;color:var(--muted);font-size:.66rem}
+    .reg-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end}
+    .reg-row label{display:grid;gap:3px;font-size:.58rem;font-weight:900;letter-spacing:.1em;color:var(--charcoal)}
+    .reg-row select,.reg-row input{font:inherit;font-size:.72rem;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--charcoal);min-width:11rem}
+    .reg-row button{font:inherit;font-size:.68rem;font-weight:900;padding:7px 14px;border:1px solid var(--charcoal);border-radius:3px;background:var(--charcoal);color:var(--paper);cursor:pointer}
+    .reg-row button:disabled{opacity:.5;cursor:default}
+    .reg-msg{min-height:1em;color:var(--charcoal)!important;font-weight:700}
+    .reg-msg.err{color:#a14a00!important}
+    .reg-stored{display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;margin:0;font-size:.64rem}
+    .reg-stored dt{font-weight:900;color:var(--brown)}.reg-stored dd{margin:0;word-break:break-all;color:var(--charcoal)}
+    .reg-log summary{cursor:pointer;font-size:.6rem;font-weight:900;color:var(--brown)}
+    .reg-log pre{margin:6px 0 0;padding:8px 10px;max-height:16rem;overflow:auto;background:var(--paper);border:1px solid var(--line);font-size:.58rem;white-space:pre-wrap;word-break:break-all}
     .vault [hidden]{display:none!important}
     .vault-note{margin:8px 0 0;color:var(--muted);font-size:.58rem}
     @media(max-width:600px){
@@ -376,6 +391,25 @@
           <p class="vault-status" id="vault-status">서버에 확인하는 중…</p>
         </div>
         <ul class="vault-items" id="vault-items" hidden></ul>
+        <details class="reg" id="reg">
+          <summary>패스키 만들기 (등록)</summary>
+          <div class="reg-body">
+            <p>이 기기에 패스키를 만들고, 서버에는 <b>공개키만</b> 저장합니다. 비밀번호는 쓰지 않습니다. 개인키는 기기 밖으로 나가지 않습니다.</p>
+            <div class="reg-row">
+              <label>계정
+                <select id="reg-account"><option value="account-a">계정 A</option><option value="account-b">계정 B</option></select>
+              </label>
+              <label>패스키 이름
+                <input id="reg-name" type="text" maxlength="40" placeholder="예: 내 노트북 Windows Hello" autocomplete="off">
+              </label>
+              <button type="button" id="reg-go">패스키 만들기</button>
+            </div>
+            <p class="reg-msg" id="reg-msg" role="status"></p>
+            <dl class="reg-stored" id="reg-stored" hidden></dl>
+            <p>패스키는 만들 때 고른 곳에 저장됩니다: 이 기기의 Windows Hello(보안 칩), 브라우저의 비밀번호 관리자(예: Google 비밀번호 관리자), 또는 보안 키. 서버에는 그 중 어느 것이든 <b>공개키만</b> 저장됩니다.</p>
+            <details class="reg-log"><summary>요청·응답 기록 보기</summary><pre id="reg-log-pre">아직 요청이 없습니다.</pre></details>
+          </div>
+        </details>
         <p class="vault-note">※ 이 자리에 들어가는 내용은 모두 만들어 넣은 것이며, 실제 개인정보는 없습니다.</p>
       </div>
     </section>
@@ -477,6 +511,78 @@
       } catch (e) {
         status.textContent = "서버에 연결하지 못했습니다. 잠금 상태를 유지합니다.";
       }
+    })();
+  </script>
+  <script>
+    // 패스키 등록: 서버가 낸 일회용 질문에 이 기기가 답하면(개인키는 기기에 남음), 공개키만 서버로 보냅니다.
+    (() => {
+      const $ = id => document.getElementById(id);
+      const go = $("reg-go"), msg = $("reg-msg"), stored = $("reg-stored"), logPre = $("reg-log-pre");
+      if (!go) return;
+      const b64uToBuf = s => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; };
+      const bufToB64u = b => { const u = new Uint8Array(b); let bin = ""; for (const c of u) bin += String.fromCharCode(c); return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+      const short = (v, key) => {
+        if (typeof v === "string") return key === "challenge" || v.length <= 40 ? v : v.slice(0, 28) + "…(" + v.length + "자)";
+        if (Array.isArray(v)) return v.map(x => short(x));
+        if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, short(x, k)]));
+        return v;
+      };
+      const log = [];
+      const addLog = (label, data) => { log.push({ 단계: label, 시각: new Date().toLocaleTimeString("ko-KR"), ...short(data) }); logPre.textContent = JSON.stringify(log, null, 1); };
+      const say = (text, err) => { msg.textContent = text; msg.classList.toggle("err", !!err); };
+      const post = async (url, body) => {
+        const res = await fetch(url, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        let data = null; try { data = await res.json(); } catch (e) {}
+        return { status: res.status, data };
+      };
+
+      go.addEventListener("click", async () => {
+        stored.hidden = true; stored.replaceChildren();
+        const name = $("reg-name").value.trim();
+        if (!name) { say("패스키 이름을 적어 주세요.", true); return; }
+        if (!window.isSecureContext || !window.PublicKeyCredential) { say("이 브라우저·주소에서는 패스키를 쓸 수 없습니다. (https 주소에서 최신 브라우저로 열어 주세요)", true); return; }
+        go.disabled = true;
+        try {
+          say("서버에 일회용 질문을 요청하는 중…");
+          const reqBody = { accountId: $("reg-account").value, name };
+          const first = await post("/api/passkey/register-options", reqBody);
+          addLog("1. 질문 요청 → 응답 " + first.status, { 요청: reqBody, 응답: first.data });
+          if (first.status !== 200) { say((first.data && first.data.message) || ("서버 응답 " + first.status), true); return; }
+          const o = first.data;
+          const publicKey = {
+            challenge: b64uToBuf(o.challenge), rp: o.rp,
+            user: { id: b64uToBuf(o.user.id), name: o.user.name, displayName: o.user.displayName },
+            pubKeyCredParams: o.pubKeyCredParams, timeout: o.timeout, attestation: o.attestation,
+            excludeCredentials: (o.excludeCredentials || []).map(c => ({ type: c.type, id: b64uToBuf(c.id), transports: c.transports })),
+            authenticatorSelection: o.authenticatorSelection
+          };
+          say("기기의 패스키 창에서 확인해 주세요…");
+          let cred;
+          try { cred = await navigator.credentials.create({ publicKey }); }
+          catch (e) {
+            addLog("2. 기기 단계", { 결과: e.name + " (서버로 아무것도 보내지 않음)" });
+            if (e.name === "NotAllowedError" || e.name === "AbortError") say("취소했습니다. 서버에는 아무것도 저장되지 않았습니다.");
+            else if (e.name === "InvalidStateError") say("이 기기에는 이미 이 계정의 패스키가 있습니다. 다른 기기나 브라우저에서 만들어 주세요.", true);
+            else say("패스키를 만들지 못했습니다: " + e.name, true);
+            return;
+          }
+          const att = cred.response;
+          const verifyBody = { name, credential: { id: cred.id, rawId: bufToB64u(cred.rawId), type: cred.type,
+            response: { clientDataJSON: bufToB64u(att.clientDataJSON), attestationObject: bufToB64u(att.attestationObject),
+              transports: typeof att.getTransports === "function" ? att.getTransports() : [] } } };
+          say("서버가 확인하는 중…");
+          const second = await post("/api/passkey/register-verify", verifyBody);
+          addLog("2. 기기의 답 전송 → 응답 " + second.status, { 요청: verifyBody, 응답: second.data });
+          if (second.status !== 201) { say((second.data && second.data.message) || ("서버 응답 " + second.status), true); return; }
+          const s = second.data.stored;
+          say("등록했습니다. 서버에 저장된 것은 아래 값뿐입니다.");
+          const rows = [["이름", s.name], ["등록 날짜", s.created_at], ["패스키 식별값", s.credential_id], ["공개키", s.public_key], ["방식", s.algorithm], ["서명 횟수", String(s.counter)]];
+          for (const [k, v] of rows) { const dt = document.createElement("dt"), dd = document.createElement("dd"); dt.textContent = k; dd.textContent = v; stored.append(dt, dd); }
+          stored.hidden = false;
+        } catch (e) {
+          say("서버에 연결하지 못했습니다.", true);
+        } finally { go.disabled = false; }
+      });
     })();
   </script>
 </body>

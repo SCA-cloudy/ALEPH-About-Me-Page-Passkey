@@ -51,3 +51,14 @@ insert into public.passkey_accounts (id, label) values
   ('account-a', '계정 A (보안·네트워크)'),
   ('account-b', '계정 B (커피)')
 on conflict (id) do nothing;
+
+-- 서버 키(service_role)에게만 표 사용 권한을 줍니다.
+-- 프로젝트 생성 때 "Automatically expose new tables"를 껐으므로 권한이 자동으로 주어지지 않습니다.
+-- 브라우저용 역할(anon, authenticated)에는 주지 않습니다. → 브라우저에서는 이 표를 읽거나 쓸 수 없습니다.
+grant usage on schema public to service_role;
+grant select, insert, update, delete on
+  public.passkey_accounts,
+  public.passkey_credentials,
+  public.passkey_challenges,
+  public.passkey_sessions
+to service_role;

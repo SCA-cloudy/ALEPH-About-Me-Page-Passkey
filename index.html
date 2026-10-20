@@ -171,6 +171,13 @@
     .vault-msg{margin:6px 0 0;font-size:.66rem;font-weight:700;color:var(--charcoal)}.vault-msg.err{color:#a14a00}
     .vault-bar{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:0 0 4px;font-size:.66rem;color:var(--charcoal)}
     .vault-bar b{font-weight:900;color:var(--brown)}.vault-bar code{font-size:.64rem}.vault-bar .vault-btn{margin-left:auto}
+    .pk-panel{margin:12px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:3px;background:var(--paper)}
+    .pk-panel h3{margin:0 0 6px;font-size:.62rem;font-weight:900;letter-spacing:.13em;color:var(--brown)}
+    .pk-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .pk-list li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:.72rem;padding:6px 0;border-top:1px dashed var(--line)}
+    .pk-list li:first-child{border-top:0}
+    .pk-list b{font-weight:900}.pk-list span{color:var(--muted);font-size:.64rem}.pk-list .vault-btn{margin-left:auto;padding:4px 10px;font-size:.62rem}
+    .pk-note{margin:6px 0 0;font-size:.62rem;color:var(--muted)}
     .reg{margin:10px 0 0;border:1px dashed var(--brown);border-radius:3px;background:rgba(255,255,255,.35);font-size:.7rem}
     .reg>summary{cursor:pointer;padding:8px 12px;font-weight:900;letter-spacing:.06em;font-size:.64rem;color:var(--brown)}
     .reg-body{padding:2px 12px 12px;display:grid;gap:8px}
@@ -405,6 +412,12 @@
         </div>
         <ul class="vault-items" id="vault-items" hidden></ul>
         <details class="reg-log" id="login-log"><summary>로그인·로그아웃 요청·응답 기록 보기</summary><pre id="login-log-pre">아직 요청이 없습니다.</pre></details>
+        <div class="pk-panel" id="pk-panel" hidden>
+          <h3>MY PASSKEYS · 이 계정에 등록된 패스키</h3>
+          <ul class="pk-list" id="pk-list"></ul>
+          <p class="vault-msg" id="pk-msg" role="status"></p>
+          <p class="pk-note">패스키는 최소 1개가 남아야 하므로 마지막 하나는 지울 수 없습니다. 다른 기기·인증 방식으로 하나 더 만들려면 아래 “패스키 만들기”를 쓰세요(로그인한 계정에 추가됩니다).</p>
+        </div>
         <details class="reg" id="reg">
           <summary>패스키 만들기 (등록)</summary>
           <div class="reg-body">
@@ -504,6 +517,7 @@
           const res = await fetch("/api/private/items", { credentials: "same-origin", cache: "no-store", headers: { Accept: "application/json" } });
           if (res.status !== 200) {
             list.replaceChildren(); list.hidden = true; bar.hidden = true; locked.hidden = false;
+            $("pk-panel").hidden = true; $("pk-list").replaceChildren(); { const sel = $("reg-account"); if (sel) sel.disabled = false; }
             status.textContent = ("서버 응답 " + res.status + " " + (res.statusText || "")).trim() + " · 로그인하지 않은 상태";
             return;
           }
@@ -523,9 +537,40 @@
           try { who = await (await fetch("/api/passkey/session", { credentials: "same-origin", cache: "no-store" })).json(); } catch (e) {}
           if (who && who.loggedIn) { $("bar-account").textContent = who.account.label; $("bar-token").textContent = who.token_preview; }
           bar.hidden = false; list.hidden = false; locked.hidden = true;
+          if (who && who.loggedIn) { const sel = $("reg-account"); if (sel) { sel.value = who.account.id; sel.disabled = true; } }
+          await loadPasskeys();
         } catch (e) {
           status.textContent = "서버에 연결하지 못했습니다. 잠금 상태를 유지합니다.";
         }
+      }
+      // 내 패스키 목록(이름·등록 날짜)과 삭제 버튼. 삭제는 한 번 더 눌러야 실행됩니다.
+      async function loadPasskeys() {
+        const panel = $("pk-panel"), ul = $("pk-list"), pmsg = $("pk-msg");
+        try {
+          const res = await fetch("/api/passkey/list", { credentials: "same-origin", cache: "no-store" });
+          if (res.status !== 200) { panel.hidden = true; return; }
+          const data = await res.json();
+          ul.replaceChildren(...data.passkeys.map(k => {
+            const li = document.createElement("li"), nm = document.createElement("b"), dt = document.createElement("span"), idn = document.createElement("span"), btn = document.createElement("button");
+            nm.textContent = k.name;
+            dt.textContent = "등록 " + k.created_at.replace("T", " ").slice(0, 16) + " (UTC)";
+            idn.textContent = "식별값 " + k.credential_id.slice(0, 8) + "…";
+            btn.type = "button"; btn.className = "vault-btn ghost"; btn.textContent = "삭제";
+            let armed = false;
+            btn.addEventListener("click", async () => {
+              if (!armed) { armed = true; btn.textContent = "정말 삭제"; setTimeout(() => { armed = false; btn.textContent = "삭제"; }, 4000); return; }
+              btn.disabled = true;
+              const r = await fetch("/api/passkey/delete", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: k.id }) });
+              let d = null; try { d = await r.json(); } catch (e) {}
+              pmsg.classList.toggle("err", r.status !== 200);
+              pmsg.textContent = r.status === 200 ? "삭제했습니다: " + d.deleted.name + " (남은 패스키 " + d.remaining + "개)" : ((d && d.message) || ("서버 응답 " + r.status)) + " (서버 응답 " + r.status + ")";
+              await loadPasskeys();
+            });
+            li.append(nm, dt, idn, btn);
+            return li;
+          }));
+          panel.hidden = false;
+        } catch (e) { panel.hidden = true; }
       }
       document.addEventListener("vault-refresh", refresh);
       refresh();
@@ -665,6 +710,7 @@
           const rows = [["이름", s.name], ["등록 날짜", s.created_at], ["패스키 식별값", s.credential_id], ["공개키", s.public_key], ["방식", s.algorithm], ["서명 횟수", String(s.counter)]];
           for (const [k, v] of rows) { const dt = document.createElement("dt"), dd = document.createElement("dd"); dt.textContent = k; dd.textContent = v; stored.append(dt, dd); }
           stored.hidden = false;
+          document.dispatchEvent(new Event("vault-refresh"));
         } catch (e) {
           say("서버에 연결하지 못했습니다.", true);
         } finally { go.disabled = false; }
